@@ -21,6 +21,36 @@ Create a comprehensive plan in ai_docs/documentation/phases_spec/<phase_name>/ t
 - Respect requested files in the `Relevant Files` section.
 - Start your research by reading the `ai_docs/documentation/CONTEXT.md` and `ai_docs/documentation/PRD.md` files.
 
+## Plan Structure Requirements
+
+When creating the detailed plan (Step 2), ensure:
+
+1. **Single Clear Structure**: Use only "Step by Step Tasks" section with numbered steps (### 1, ### 2, etc.). Avoid dual structures (implementation phases + steps).
+
+2. **Execution Directive**: Add immediately before step 1:
+   ```
+   **EXECUTION RULES:**
+   - Execute ALL steps below in exact order
+   - Check Acceptance Criteria - all items are REQUIRED
+   - Do NOT skip UI/frontend steps if in acceptance criteria
+   - If blocked, document and continue other steps
+   ```
+
+3. **Checkpoints**: Add after major section transitions:
+   ```
+   ---
+   ✅ CHECKPOINT: Steps X-Y complete (Backend/Frontend/etc). Continue to step Z.
+   ---
+   ```
+
+4. **Acceptance Criteria First**: Place Acceptance Criteria section BEFORE "Step by Step Tasks" so requirements are clear upfront.
+
+5. **Logging Instructions**: Add to validation commands section:
+   ```
+   # Implementation log created at:
+   # {plan_directory}/{phase_name}_implementation.log
+   ```
+
 ## Relevant Files
 
 Focus on the following files:
@@ -105,28 +135,39 @@ Use these files to implement the phase:
 
 <find and list the files that are relevant to the phase, describe why they are relevant in bullet points. If there are new files that need to be created to implement the phase, list them in an h3 'New Files' section.>
 
-## Implementation Plan
-### Phase 1: Foundation
-<describe the foundational work needed before implementing the main features>
-
-### Phase 2: Core Implementation
-<describe the main implementation work for the phase's features>
-
-### Phase 3: Integration
-<describe how the phase features will integrate with existing functionality and previous phases>
-
-## Step by Step Tasks
-IMPORTANT: Execute every step in order, top to bottom.
-
-<list step by step tasks as h3 headers plus bullet points. use as many h3 headers as needed to implement the phase. Order matters, start with the foundational shared changes required then move on to the specific implementation. No testing, keep things simple. Your last step should be running the `Validation Commands` to validate the phase works correctly.>
-
 ## Acceptance Criteria
 <list specific, measurable criteria that must be met for the phase to be considered complete>
+
+## Step by Step Tasks
+
+**EXECUTION RULES:**
+- Execute ALL steps below in exact order
+- Check Acceptance Criteria - all items are REQUIRED
+- Do NOT skip UI/frontend steps if in acceptance criteria
+- If blocked, document and continue other steps
+
+### 1. <First Step Name>
+
+<list step details as bullet points>
+
+### 2. <Second Step Name>
+
+<list step details as bullet points>
+
+<continue with all steps... use as many h3 headers as needed to implement the phase. Order matters, start with the foundational shared changes required then move on to the specific implementation. No testing, keep things simple. Your last step should be running the `Validation Commands` to validate the phase works correctly.>
+
+<Add checkpoints after major transitions:>
+---
+✅ CHECKPOINT: Steps X-Y complete (Backend/Frontend/etc). Continue to step Z.
+---
 
 ## Validation Commands
 Execute every command to validate the phase works correctly.
 
 <list commands you'll use to validate the phase is implemented correctly. every command must execute without errors. Include commands to validate the phase end-to-end.>
+
+# Implementation log created at:
+# {plan_directory}/{phase_name}_implementation.log
 
 ## Notes
 <optionally list any additional notes, future considerations, or context that are relevant to the phase that will be helpful to the developer>
