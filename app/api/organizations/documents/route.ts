@@ -49,12 +49,21 @@ async function handlePOST(request: NextRequest, { user, supabase }: AuthContext)
 
     if (uploadError) throw uploadError
 
-    // Extract text via Gemini
-    const contentText = await extractTextFromFile(
-      fileBuffer,
-      file.name,
-      file.type
-    )
+    // Extract text via Gemini (allow failures)
+    let contentText = ''
+    let contentExtracted = false
+    try {
+      contentText = await extractTextFromFile(
+        fileBuffer,
+        file.name,
+        file.type
+      )
+      contentExtracted = !!contentText
+    } catch (extractionError) {
+      console.error('Text extraction failed, document uploaded without content:', extractionError)
+      // Continue with upload, mark extraction as failed
+      contentExtracted = false
+    }
 
     // Create document record
     const document = await createOrganizationDocument(supabase, {
@@ -67,7 +76,7 @@ async function handlePOST(request: NextRequest, { user, supabase }: AuthContext)
       category: category || undefined,
       tags: tags ? tags.split(',').map(t => t.trim()) : undefined,
       content_text: contentText,
-      content_extracted: !!contentText,
+      content_extracted: contentExtracted,
     })
 
     return apiSuccess(document)
