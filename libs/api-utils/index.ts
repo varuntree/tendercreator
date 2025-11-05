@@ -21,6 +21,18 @@ export function apiError(
   status: number = 500
 ): NextResponse<ApiResponse> {
   const message = error instanceof Error ? error.message : error
+
+  // Log detailed error for debugging
+  if (error instanceof Error) {
+    console.error('[API Error]', {
+      message: error.message,
+      stack: error.stack,
+      status
+    })
+  } else {
+    console.error('[API Error]', { error, status })
+  }
+
   return NextResponse.json(
     {
       success: false,
@@ -76,7 +88,10 @@ export function withAuth(handler: AuthHandler) {
         return apiError('Unauthorized', 401)
       }
 
-      return handler(request, { user, supabase }, context?.params)
+      // Next.js 15: params are now Promise objects, must await them
+      const resolvedParams = context?.params ? await context.params : undefined
+
+      return handler(request, { user, supabase }, resolvedParams)
     } catch (error) {
       console.error('Auth handler error:', error)
       return apiError(error as Error)
