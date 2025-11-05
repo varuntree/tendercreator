@@ -10,10 +10,10 @@ import {
 async function handleGET(
   request: NextRequest,
   { supabase }: AuthContext,
-  params: { params: { id: string } }
+  routeContext: { params: Promise<{ id: string }> }
 ) {
   try {
-    const projectId = params.params.id
+    const { id: projectId } = await routeContext.params
     const project = await getProject(supabase, projectId)
     return apiSuccess(project)
   } catch (error) {
@@ -24,10 +24,10 @@ async function handleGET(
 async function handlePUT(
   request: NextRequest,
   { supabase }: AuthContext,
-  params: { params: { id: string } }
+  routeContext: { params: Promise<{ id: string }> }
 ) {
   try {
-    const projectId = params.params.id
+    const { id: projectId } = await routeContext.params
     const body = await request.json()
 
     const project = await updateProject(supabase, projectId, body)
@@ -40,10 +40,10 @@ async function handlePUT(
 async function handleDELETE(
   request: NextRequest,
   { supabase }: AuthContext,
-  params: { params: { id: string } }
+  routeContext: { params: Promise<{ id: string }> }
 ) {
   try {
-    const projectId = params.params.id
+    const { id: projectId } = await routeContext.params
     await deleteProject(supabase, projectId)
     return apiSuccess({ message: 'Project deleted' })
   } catch (error) {

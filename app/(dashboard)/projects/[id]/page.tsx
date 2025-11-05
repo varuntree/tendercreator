@@ -3,36 +3,57 @@
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import { AnalysisTrigger } from '@/components/analysis-trigger'
 import DocumentList from '@/components/document-list'
+import { DocumentRequirementsMatrix } from '@/components/document-requirements-matrix'
 import FileUpload from '@/components/file-upload'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
+interface WorkPackage {
+  id: string
+  document_type: string
+  document_description: string | null
+  requirements: Array<{
+    id: string
+    text: string
+    priority: 'mandatory' | 'optional'
+    source: string
+  }>
+  assigned_to: string | null
+  status: 'not_started' | 'in_progress' | 'completed'
+}
 
 export default function ProjectDetailPage() {
   const params = useParams()
   const router = useRouter()
   const projectId = params.id as string
 
-  const [project, setProject] = useState<{id: string; name: string; client_name?: string} | null>(null)
+  const [project, setProject] = useState<{id: string; name: string; client_name?: string; status?: string} | null>(null)
   const [documents, setDocuments] = useState<{id: string; name: string; file_type: string; file_size: number; uploaded_at: string; is_primary_rft?: boolean}[]>([])
+  const [workPackages, setWorkPackages] = useState<WorkPackage[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     loadData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId])
 
   const loadData = async () => {
     try {
-      const [projectRes, docsRes] = await Promise.all([
+      const [projectRes, docsRes, packagesRes] = await Promise.all([
         fetch(`/api/projects/${projectId}`),
         fetch(`/api/projects/${projectId}/documents`),
+        fetch(`/api/projects/${projectId}/work-packages`),
       ])
 
       const projectData = await projectRes.json()
       const docsData = await docsRes.json()
+      const packagesData = await packagesRes.json()
 
       if (projectData.success) setProject(projectData.data)
       if (docsData.success) setDocuments(docsData.data)
+      if (packagesData.success) setWorkPackages(packagesData.data || [])
     } catch (error) {
       console.error('Error loading:', error)
     } finally {
@@ -93,31 +114,47 @@ export default function ProjectDetailPage() {
       </div>
 
       <div className="space-y-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Upload RFT Documents</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <FileUpload onUpload={handleUpload} />
-          </CardContent>
-        </Card>
+        {project.status === 'setup' && (
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle>Upload RFT Documents</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FileUpload onUpload={handleUpload} />
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Documents</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {documents.length === 0 ? (
-              <p className="text-gray-500">No documents uploaded yet</p>
-            ) : (
-              <DocumentList documents={documents} onDelete={handleDelete} />
+            <Card>
+              <CardHeader>
+                <CardTitle>Documents</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {documents.length === 0 ? (
+                  <p className="text-gray-500">No documents uploaded yet</p>
+                ) : (
+                  <DocumentList documents={documents} onDelete={handleDelete} />
+                )}
+              </CardContent>
+            </Card>
+
+            {documents.length > 0 && (
+              <AnalysisTrigger
+                projectId={projectId}
+                projectStatus={project.status || 'setup'}
+                onAnalysisComplete={loadData}
+              />
             )}
-          </CardContent>
-        </Card>
+          </>
+        )}
 
-        <Button disabled className="w-full">
-          Analyze RFT (Coming in Phase 2)
-        </Button>
+        {project.status === 'in_progress' && workPackages.length > 0 && (
+          <DocumentRequirementsMatrix
+            projectId={projectId}
+            workPackages={workPackages}
+            onUpdate={loadData}
+          />
+        )}
       </div>
     </div>
   )

@@ -31,12 +31,20 @@ export async function createProject(
     deadline?: string
     instructions?: string
     created_by: string
-    status?: 'draft' | 'active' | 'completed' | 'archived'
+    status?: 'setup' | 'analysis' | 'in_progress' | 'completed' | 'archived'
   }
 ) {
   const { data: project, error } = await supabase
     .from('projects')
-    .insert(data)
+    .insert({
+      organization_id: data.organization_id,
+      name: data.name,
+      client_name: data.client_name || null,
+      deadline: data.deadline || null,
+      instructions: data.instructions || null,
+      created_by: data.created_by,
+      status: data.status || 'setup'
+    })
     .select()
     .single()
 
@@ -52,7 +60,7 @@ export async function updateProject(
     client_name?: string
     deadline?: string
     instructions?: string
-    status?: 'draft' | 'active' | 'completed' | 'archived'
+    status?: 'setup' | 'analysis' | 'in_progress' | 'completed' | 'archived'
   }
 ) {
   const { data: updated, error } = await supabase
@@ -73,4 +81,45 @@ export async function deleteProject(supabase: SupabaseClient, projectId: string)
     .eq('id', projectId)
 
   if (error) throw error
+}
+
+export type ProjectStatus = 'setup' | 'analysis' | 'in_progress' | 'completed' | 'archived'
+
+export async function updateProjectStatus(
+  supabase: SupabaseClient,
+  projectId: string,
+  status: ProjectStatus
+): Promise<void> {
+  const { error } = await supabase
+    .from('projects')
+    .update({
+      status,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', projectId)
+
+  if (error) {
+    throw new Error(`Failed to update project status: ${error.message}`)
+  }
+}
+
+export async function getProjectWithDocumentsAndPackages(
+  supabase: SupabaseClient,
+  projectId: string
+) {
+  const { data: project, error: projectError } = await supabase
+    .from('projects')
+    .select(`
+      *,
+      project_documents(*),
+      work_packages(*)
+    `)
+    .eq('id', projectId)
+    .single()
+
+  if (projectError) {
+    throw new Error(`Failed to get project: ${projectError.message}`)
+  }
+
+  return project
 }

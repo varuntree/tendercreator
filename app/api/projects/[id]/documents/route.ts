@@ -11,10 +11,10 @@ import {
 async function handleGET(
   request: NextRequest,
   { supabase }: AuthContext,
-  params: { params: { id: string } }
+  routeContext: { params: Promise<{ id: string }> }
 ) {
   try {
-    const projectId = params.params.id
+    const { id: projectId } = await routeContext.params
     const documents = await listProjectDocuments(supabase, projectId)
     return apiSuccess(documents)
   } catch (error) {
@@ -25,10 +25,10 @@ async function handleGET(
 async function handlePOST(
   request: NextRequest,
   { user, supabase }: AuthContext,
-  params: { params: { id: string } }
+  routeContext: { params: Promise<{ id: string }> }
 ) {
   try {
-    const projectId = params.params.id
+    const { id: projectId } = await routeContext.params
     const formData = await request.formData()
     const file = formData.get('file') as File
     const isPrimary = formData.get('is_primary_rft') === 'true'

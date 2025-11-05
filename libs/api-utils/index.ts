@@ -54,12 +54,12 @@ type AuthHandler = (
   request: NextRequest,
   context: AuthContext,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  params?: any
+  routeContext?: any
 ) => Promise<NextResponse>
 
 export function withAuth(handler: AuthHandler) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return async (request: NextRequest, context?: any) => {
+  return async (request: NextRequest, routeContext?: any) => {
     try {
       const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -88,10 +88,7 @@ export function withAuth(handler: AuthHandler) {
         return apiError('Unauthorized', 401)
       }
 
-      // Next.js 15: params are now Promise objects, must await them
-      const resolvedParams = context?.params ? await context.params : undefined
-
-      return handler(request, { user, supabase }, resolvedParams)
+      return handler(request, { user, supabase }, routeContext)
     } catch (error) {
       console.error('Auth handler error:', error)
       return apiError(error as Error)

@@ -1,0 +1,538 @@
+NSW GOVERNMENT CONSTRUCTION TENDER
+PROJECT: Community Centre Redevelopment
+Contract Number: CC-2025-091
+Issue Date: November 2025
+
+===========================================
+SECTION 1: PROJECT OVERVIEW
+===========================================
+
+The NSW Government invites tenders for the design, construction, and commissioning of a new community centre facility in Western Sydney. The project includes demolition of the existing structure, construction of a 2,500 sqm multi-purpose facility, landscaping, and parking facilities.
+
+Project Value: $12-15 million
+Project Duration: 18 months from contract signing
+Site Location: 145 Community Drive, Western Sydney NSW 2000
+
+===========================================
+SECTION 2: SUBMISSION REQUIREMENTS
+===========================================
+
+Tenderers must submit the following documents by the deadline:
+
+2.1 Technical Specification
+Complete technical approach document describing construction methodology, project timeline, quality assurance processes, and resource allocation plan.
+
+2.2 Bill of Quantities
+Itemized cost breakdown for all work packages including materials, labor, equipment, and contingencies. Must align with Australian Standard cost codes.
+
+2.3 Project Plan
+Detailed project schedule with milestones, critical path analysis, and resource loading. Must include Gantt charts and dependency mapping.
+
+2.4 Risk Register
+Comprehensive risk assessment covering construction, financial, environmental, and stakeholder risks. Must include mitigation strategies and risk owners.
+
+2.5 Work Health & Safety Plan
+Complete WHS plan compliant with NSW WHS Act 2011. Must address site safety, emergency procedures, and safety training programs.
+
+2.6 Quality Assurance Plan
+Quality management framework describing inspection schedules, testing protocols, and quality control measures throughout project lifecycle.
+
+2.7 Environmental Management Plan
+Environmental impact assessment and management strategies addressing noise, dust, waste management, and protection of existing flora.
+
+2.8 Subcontractor List
+List of all proposed subcontractors with trade classifications, licensing details, insurance coverage, and past performance records.
+
+2.9 Company Profile
+Organization overview including company history, organizational structure, key personnel CVs, financial capacity statements, and past project references.
+
+2.10 Insurance Certificates
+Current insurance certificates including Public Liability ($20M), Professional Indemnity ($5M), Workers Compensation, and Contract Works insurance.
+
+===========================================
+SECTION 3: TECHNICAL SPECIFICATION REQUIREMENTS
+===========================================
+
+The Technical Specification must address the following mandatory elements:
+
+3.1 Construction Methodology [MANDATORY]
+- Detailed description of construction approach and sequencing
+- Foundation and structural systems methodology
+- Facade and envelope installation strategy
+- MEP systems integration approach
+- Interior fit-out methodology
+
+Reference: Design Documentation Package, Appendix A
+
+3.2 Project Timeline [MANDATORY]
+- Month-by-month schedule from mobilization to handover
+- Key milestone dates including design completion, practical completion, and defects liability period
+- Critical path identification with float analysis
+
+Reference: Section 4.2, Contract General Conditions
+
+3.3 Resource Allocation Plan [MANDATORY]
+- Site management structure with organizational chart
+- Labor resource histogram showing trades and quantities
+- Major plant and equipment schedule
+- Material procurement and delivery schedule
+
+Reference: Clause 12, Quality Requirements
+
+3.4 Quality Assurance Processes [MANDATORY]
+- Quality control testing regime for concrete, steel, and finishes
+- Inspection and test plans (ITPs) for critical elements
+- Non-conformance management procedures
+- Document control and records management
+
+Reference: Section 7, Quality Standards AS/NZS ISO 9001
+
+3.5 Sustainability Approach [OPTIONAL]
+- Energy efficiency measures and NABERS target
+- Water conservation strategies
+- Waste minimization and recycling plan
+- Use of sustainable and recycled materials
+
+Reference: Green Star requirements, Appendix C
+
+3.6 Stakeholder Engagement Strategy [MANDATORY]
+- Community notification procedures for noisy works
+- Traffic management and access arrangements
+- Regular progress reporting to project steering committee
+- Issue resolution escalation process
+
+Reference: Section 9, Stakeholder Management
+
+3.7 Site Establishment Plan [MANDATORY]
+- Site compound layout with offices, amenities, and storage
+- Temporary services (power, water, site access)
+- Security and fencing arrangements
+- Waste management facilities
+
+Reference: Site Management Plan Template, Appendix D
+
+3.8 Commissioning Approach [MANDATORY]
+- MEP systems testing and commissioning schedule
+- Performance verification testing protocols
+- Training and handover documentation
+- Defects management during DLP
+
+Reference: Commissioning Requirements, Section 11
+
+===========================================
+SECTION 4: BILL OF QUANTITIES REQUIREMENTS
+===========================================
+
+The Bill of Quantities must include:
+
+4.1 Itemized Cost Breakdown [MANDATORY]
+- All costs broken down to work package level
+- Unit rates for measurable items
+- Lump sum items clearly identified
+- All rates to include margins and contingencies
+
+Reference: BoQ Template, Appendix E
+
+4.2 Provisional Sums [MANDATORY]
+- Provisional sums for authority service connections
+- Allowances for rock excavation
+- Prime cost items for client-selected finishes
+- Contingency allowances (minimum 5%)
+
+Reference: Section 8, Cost Management
+
+4.3 Payment Schedule [MANDATORY]
+- Monthly progress payment milestones
+- Retention percentages (5% to practical completion)
+- Final payment conditions
+- Variation pricing methodology
+
+Reference: Payment Terms, Clause 16
+
+4.4 Compliance with Standards [MANDATORY]
+- Cost codes aligned with NATSPEC classification
+- All rates current as at tender date
+- Escalation assumptions clearly stated
+- Foreign exchange assumptions for imported materials
+
+Reference: Australian Cost Management Manual
+
+4.5 Labor Rates [MANDATORY]
+- Award rates for all trade classifications
+- Allowances for penalty rates and overtime
+- Site allowances and travel time
+- Supervision and management rates
+
+Reference: Building Trades Award 2020
+
+===========================================
+SECTION 5: RISK REGISTER REQUIREMENTS
+===========================================
+
+The Risk Register must identify and assess:
+
+5.1 Construction Risks [MANDATORY]
+- Geotechnical risks including rock, groundwater, contamination
+- Weather delays and seasonal impacts
+- Access constraints and site logistics
+- Adjacent property impacts and dilapidation risks
+- Material supply chain disruptions
+
+Reference: Geotechnical Report, Appendix F
+
+5.2 Program Risks [MANDATORY]
+- Design finalization delays
+- Authority approval timeframes
+- Labor and skill shortages
+- Subcontractor performance and insolvency
+- Sequential trade dependencies
+
+Reference: Program Management Framework
+
+5.3 Financial Risks [MANDATORY]
+- Cost escalation beyond tender rates
+- Variations and scope creep
+- Cash flow and payment delays
+- Foreign exchange impacts on imported materials
+- Subcontractor payment defaults
+
+Reference: Section 10, Financial Management
+
+5.4 Safety Risks [MANDATORY]
+- High-risk construction activities (excavation, work at heights)
+- Plant and equipment hazards
+- Manual handling and ergonomic risks
+- Hazardous materials (asbestos, lead paint)
+- Emergency response scenarios
+
+Reference: WHS Risk Assessment Template
+
+5.5 Mitigation Strategies [MANDATORY]
+- Risk treatment plans for all high and extreme risks
+- Contingency measures and fallback positions
+- Risk ownership assignments
+- Monitoring and review frequency
+- Escalation triggers and procedures
+
+Reference: Risk Management Standard AS/NZS ISO 31000
+
+===========================================
+SECTION 6: WHS PLAN REQUIREMENTS
+===========================================
+
+The Work Health & Safety Plan must include:
+
+6.1 Safety Management System [MANDATORY]
+- WHS policy statement and objectives
+- Safety roles and responsibilities (Project Manager, Safety Manager, Workers)
+- Safety training and induction requirements
+- Toolbox talk schedules and topics
+- Safety audit and inspection programs
+
+Reference: NSW WHS Act 2011, SafeWork NSW Codes
+
+6.2 Hazard Identification and Control [MANDATORY]
+- Job safety analysis (JSA) for all high-risk activities
+- Safe work method statements (SWMS) library
+- Hazard reporting and investigation procedures
+- Control measure hierarchy application
+- Personal protective equipment (PPE) requirements
+
+Reference: WHS Regulations 2017
+
+6.3 Emergency Procedures [MANDATORY]
+- Emergency evacuation plans with assembly points
+- First aid facilities and trained personnel
+- Fire fighting equipment and procedures
+- Incident notification and reporting requirements
+- Emergency contact lists
+
+Reference: Emergency Management Template
+
+6.4 High-Risk Work [MANDATORY]
+- Confined space entry procedures and permits
+- Work at heights safety (scaffolding, EWPs, fall protection)
+- Excavation and trenching safety
+- Heavy lifting and crane operations
+- Hot works and fire prevention
+
+Reference: High Risk Work Licensing, SafeWork NSW
+
+6.5 Traffic Management [MANDATORY]
+- Site access and egress arrangements
+- Vehicle and pedestrian separation
+- Deliveries and truck movements
+- Public road impacts and approvals
+- Parking and turning areas
+
+Reference: Traffic Management Plan, Appendix G
+
+===========================================
+SECTION 7: QUALITY PLAN REQUIREMENTS
+===========================================
+
+The Quality Assurance Plan must address:
+
+7.1 Quality Management Framework [MANDATORY]
+- Quality policy and objectives
+- Quality organizational structure and responsibilities
+- Document control procedures
+- Records management and traceability
+- Non-conformance management process
+
+Reference: AS/NZS ISO 9001:2016
+
+7.2 Inspection and Testing [MANDATORY]
+- Inspection and test plans (ITPs) for all critical elements
+- Hold points and witness points schedule
+- Testing laboratory accreditation (NATA)
+- Material testing frequencies (concrete, steel, compaction)
+- Performance testing and commissioning
+
+Reference: Contract Technical Specification
+
+7.3 Supplier and Subcontractor Management [MANDATORY]
+- Supplier qualification and approval process
+- Subcontractor quality requirements in sub-contracts
+- Material certificates and compliance documentation
+- Subcontractor inspections and audits
+- Performance monitoring and corrective actions
+
+Reference: Supply Chain Management Procedures
+
+7.4 Quality Records [MANDATORY]
+- As-built drawings and documentation
+- Material test certificates and warranties
+- Inspection records and sign-offs
+- Non-conformance reports and corrective actions
+- Handover documentation package
+
+Reference: Project Close-Out Requirements
+
+===========================================
+SECTION 8: ENVIRONMENTAL MANAGEMENT PLAN REQUIREMENTS
+===========================================
+
+The Environmental Management Plan must include:
+
+8.1 Environmental Risk Assessment [MANDATORY]
+- Identification of environmental aspects and impacts
+- Compliance with EPA requirements and approvals
+- Environmental monitoring and measurement
+- Environmental objectives and targets
+- Legal and regulatory compliance register
+
+Reference: Protection of the Environment Operations Act 1997
+
+8.2 Noise and Vibration Management [MANDATORY]
+- Noise monitoring locations and frequency
+- Restricted hours for noisy works
+- Community notification procedures
+- Vibration monitoring for adjacent structures
+- Noise attenuation measures
+
+Reference: NSW Interim Construction Noise Guideline
+
+8.3 Dust and Air Quality [MANDATORY]
+- Dust suppression measures (water carts, sprays)
+- Air quality monitoring program
+- Stockpile management and covering
+- Vehicle wash-down facilities
+- Complaint response procedures
+
+Reference: Air Quality Management Guidelines
+
+8.4 Waste Management [MANDATORY]
+- Waste minimization and segregation strategy
+- Recycling targets (minimum 80% diversion from landfill)
+- Waste tracking and reporting
+- Hazardous waste management and disposal
+- Licensed waste contractor details
+
+Reference: Waste Management Plan Template
+
+8.5 Erosion and Sediment Control [MANDATORY]
+- Erosion and sediment control plan (ESCP)
+- Stormwater management and sediment basins
+- Inspection and maintenance schedules
+- Topsoil management and stockpiling
+- Landscaping reinstatement
+
+Reference: Managing Urban Stormwater (Blue Book)
+
+===========================================
+SECTION 9: SUBCONTRACTOR LIST REQUIREMENTS
+===========================================
+
+For each proposed subcontractor, provide:
+
+9.1 Subcontractor Details [MANDATORY]
+- Company name, ABN, and contact details
+- Trade classification and scope of work
+- Current license details (NSW Fair Trading)
+- Public liability and workers compensation insurance
+- Financial capacity statement
+
+Reference: Subcontractor Prequalification Form
+
+9.2 Past Performance [MANDATORY]
+- Three recent similar projects (last 3 years)
+- Client references with contact details
+- Project values and completion dates
+- Performance ratings and feedback
+- Any disputes or litigation history
+
+Reference: Reference Check Template
+
+9.3 Key Personnel [MANDATORY]
+- Subcontractor site supervisor details
+- Trade qualifications and licenses
+- Years of experience in similar work
+- White Card and other safety training
+- Police checks for site access (if required)
+
+Reference: Personnel Requirements, Section 14
+
+===========================================
+SECTION 10: COMPANY PROFILE REQUIREMENTS
+===========================================
+
+The Company Profile must include:
+
+10.1 Company Information [MANDATORY]
+- Company name, ABN, ACN, registered office
+- Years in business and ownership structure
+- Number of employees and organizational chart
+- Annual turnover (last 3 years)
+- Credit rating and bank references
+
+Reference: Financial Capacity Assessment Criteria
+
+10.2 Key Personnel [MANDATORY]
+- Project Manager CV and qualifications
+- Construction Manager CV and experience
+- Design Manager credentials
+- WHS Manager qualifications and certifications
+- Quality Manager credentials
+
+Reference: Key Personnel Requirements
+
+10.3 Company Experience [MANDATORY]
+- Portfolio of similar projects (minimum 5 projects)
+- Project descriptions, values, and completion dates
+- Client references for each project
+- Awards and recognitions
+- Industry memberships (e.g., MBA, UDIA)
+
+Reference: Selection Criteria, Appendix H
+
+10.4 Financial Statements [MANDATORY]
+- Audited financial statements (last 3 years)
+- Balance sheet and profit/loss statements
+- Cash flow statements
+- Bank guarantee facility capacity
+- Professional indemnity insurance details
+
+Reference: Financial Assessment Framework
+
+10.5 Quality Certifications [OPTIONAL]
+- ISO 9001 Quality Management certification
+- ISO 14001 Environmental Management certification
+- ISO 45001 Safety Management certification
+- Prequalification status (NSW Government, others)
+
+Reference: Certification Requirements
+
+===========================================
+SECTION 11: INSURANCE REQUIREMENTS
+===========================================
+
+The following insurance certificates must be provided:
+
+11.1 Public Liability Insurance [MANDATORY]
+- Minimum coverage: $20 million per occurrence
+- Current certificate with expiry date
+- Policy covers construction activities and site operations
+- Insurer details and policy number
+- Endorsements naming NSW Government as interested party
+
+Reference: Insurance Requirements, Contract General Conditions
+
+11.2 Professional Indemnity Insurance [MANDATORY]
+- Minimum coverage: $5 million per claim
+- Covers design activities and professional advice
+- Run-off cover for 6 years post-completion
+- Current certificate of currency
+- Confirmation of claims history
+
+Reference: Professional Services Requirements
+
+11.3 Workers Compensation Insurance [MANDATORY]
+- NSW WorkCover policy current and compliant
+- Coverage for all employees and workers
+- Premium payments up to date
+- Nest remittance receipts (last 6 months)
+- Subcontractor workers compensation requirements
+
+Reference: Workers Compensation Act 1987
+
+11.4 Contract Works Insurance [MANDATORY]
+- Coverage equal to full contract value
+- Covers works, materials, and plant on site
+- Insured parties include NSW Government and all contractors
+- Covers natural disasters and malicious damage
+- Deductible amounts disclosed
+
+Reference: Contract Works Insurance Requirements
+
+===========================================
+SECTION 12: EVALUATION CRITERIA
+===========================================
+
+Tenders will be evaluated against the following weighted criteria:
+
+12.1 Price (30%)
+- Total tendered price competitiveness
+- Value for money assessment
+- Payment schedule reasonableness
+- Risk and contingency allowances
+
+12.2 Technical Capability (25%)
+- Construction methodology and innovation
+- Program achievability and realism
+- Quality assurance framework
+- Risk management approach
+
+12.3 Experience and Track Record (20%)
+- Similar project experience
+- Key personnel qualifications and experience
+- Past performance and client references
+- Financial capacity and stability
+
+12.4 WHS Performance (15%)
+- WHS management system robustness
+- Safety performance statistics (LTIFR)
+- Safety culture and commitment
+- Training and competency programs
+
+12.5 Environmental and Sustainability (10%)
+- Environmental management approach
+- Sustainability initiatives and targets
+- Waste minimization strategies
+- Energy and water efficiency measures
+
+===========================================
+SECTION 13: SUBMISSION DETAILS
+===========================================
+
+Tender Deadline: 4:00 PM, Friday, 20 December 2025
+
+Submit via NSW eTendering portal: www.tenders.nsw.gov.au
+
+All documents must be in PDF format, clearly labeled with document type and page numbers.
+
+Questions and clarifications: tenders@nswgov.com.au by 10 December 2025
+
+Late submissions will not be accepted.
+
+END OF TENDER DOCUMENT

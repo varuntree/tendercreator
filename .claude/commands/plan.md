@@ -175,6 +175,7 @@ Execute every command to validate the phase works correctly.
 - Use pre-configured test credentials from test_e2e.md (DO NOT create new users)
 - Reference absolute paths for test fixtures in test_fixtures/
 - Sign in via email/password: test@tendercreator.dev / TestPass123!
+- you will write the detailed tests in format of the workflow in the /Users/varunprasad/code/prjs/tendercreator/tendercreator/.claude/commands/test_e2e.md
 
 # Implementation log created at:
 # {plan_directory}/{phase_name}_implementation.log

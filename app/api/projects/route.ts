@@ -37,11 +37,12 @@ async function handlePOST(request: NextRequest, { user, supabase }: AuthContext)
       deadline,
       instructions,
       created_by: user.id,
-      status: 'draft',
+      status: 'setup',
     })
 
     return apiSuccess(project)
   } catch (error) {
+    console.error('Error creating project:', error)
     return apiError(error as Error)
   }
 }

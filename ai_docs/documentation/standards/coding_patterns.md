@@ -118,6 +118,35 @@ export default function Dashboard() {
 
 ## 🚫 Prohibited Patterns
 
+### ❌ Enum Changes Without Migrations:
+```typescript
+// NEVER DO THIS - Change enum in code without database migration
+export type ProjectStatus = 'new_value' | 'old_value' // Added 'new_value'
+// Must create migration FIRST, then update code
+```
+
+### ❌ Hard-Coded Column Names in Queries:
+```typescript
+// NEVER DO THIS - String-based column names
+.select('id, file_name, content_text')
+// Use generated types or verify column exists
+```
+
+### ❌ Empty String for NULL:
+```typescript
+// NEVER DO THIS - Pass empty strings to database
+deadline: data.deadline || '', // Wrong
+// Always convert empty strings to null
+deadline: data.deadline || null, // Correct
+```
+
+### ❌ Unvalidated External API Calls:
+```typescript
+// NEVER DO THIS - No validation before calling external API
+const result = await model.generateContent(prompt)
+// Add existence checks and fallbacks
+```
+
 ### ❌ Class-Based Repositories:
 ```typescript
 // NEVER DO THIS

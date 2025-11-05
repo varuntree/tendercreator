@@ -9,12 +9,18 @@ export async function extractTextFromFile(
   fileName: string,
   mimeType: string
 ): Promise<string> {
-  // Upload file to Gemini
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const uploadResult = await fileManager.uploadFile(fileBuffer as any, {
-    mimeType,
-    displayName: fileName,
-  })
+  try {
+    // For text files, just read directly
+    if (mimeType === 'text/plain') {
+      return fileBuffer.toString('utf-8')
+    }
+
+    // For other file types, upload file to Gemini
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const uploadResult = await fileManager.uploadFile(fileBuffer as any, {
+      mimeType,
+      displayName: fileName,
+    })
 
   try {
     // Extract text with prompt
