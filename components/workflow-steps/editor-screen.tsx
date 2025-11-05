@@ -1,0 +1,46 @@
+'use client'
+
+import { Button } from '@/components/ui/button'
+import { ChevronRight, ChevronLeft } from 'lucide-react'
+import { ContentEditor } from './content-editor'
+
+interface EditorScreenProps {
+  workPackageId: string
+  initialContent: string
+  onContinue: () => void
+  onBack: () => void
+}
+
+export function EditorScreen({
+  workPackageId,
+  initialContent,
+  onContinue,
+  onBack,
+}: EditorScreenProps) {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Edit Document</h2>
+          <p className="text-muted-foreground">Refine and customize your content</p>
+        </div>
+        <Button onClick={onContinue}>
+          Continue to Export
+          <ChevronRight className="ml-2 size-4" />
+        </Button>
+      </div>
+
+      <ContentEditor
+        workPackageId={workPackageId}
+        initialContent={initialContent}
+      />
+
+      <div className="flex justify-start pt-4">
+        <Button variant="outline" onClick={onBack}>
+          <ChevronLeft className="mr-2 size-4" />
+          Back to Generate
+        </Button>
+      </div>
+    </div>
+  )
+}
