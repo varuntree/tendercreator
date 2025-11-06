@@ -39,18 +39,7 @@ export default function FolderProjectCard({ project, colorIndex }: FolderProject
             clipPath: 'polygon(0 18%, 12% 0, 100% 0, 100% 100%, 0 100%)',
           }}
         >
-          {/* Folder tab */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute left-8 top-0 flex h-10 items-center gap-2 rounded-t-xl border border-white/50 px-4 text-xs font-semibold uppercase tracking-wide text-foreground/70 shadow-[0_4px_12px_rgba(15,23,42,0.08)]"
-            style={{
-              backgroundImage: `linear-gradient(120deg, ${gradientFrom}, ${gradientTo})`,
-              clipPath: 'polygon(0 100%, 0 25%, 12% 0, 85% 0, 100% 30%, 100% 100%)',
-            }}
-          >
-            <Folder className="h-4 w-4 text-foreground/70" />
-            <span>Project</span>
-          </div>
+        
 
           {/* Shine overlay */}
           <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">

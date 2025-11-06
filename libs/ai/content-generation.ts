@@ -11,6 +11,7 @@ import {
 } from './prompts/editor-actions'
 import { WorkPackage, Requirement } from '@/libs/repositories/work-packages'
 import { ProjectContext } from './context-assembly'
+import { parseGeminiError } from './error-parser'
 
 /**
  * Generate win themes for a work package
@@ -45,7 +46,16 @@ export async function generateWinThemes(
     return parsed.win_themes
   } catch (error) {
     console.error('[Win Themes] Generation failed:', error)
-    throw error
+
+    // Parse error for rate limit info
+    const parsedError = parseGeminiError(error)
+
+    // Re-throw with parsed error info attached
+    const enhancedError = error instanceof Error ? error : new Error('Win themes generation failed')
+    ;(enhancedError as any).isRateLimitError = parsedError.isRateLimitError
+    ;(enhancedError as any).retryDelaySeconds = parsedError.retryDelaySeconds
+
+    throw enhancedError
   }
 }
 
@@ -70,7 +80,16 @@ export async function generateDocumentContent(
     return content
   } catch (error) {
     console.error('[Content] Generation failed:', error)
-    throw error
+
+    // Parse error for rate limit info
+    const parsedError = parseGeminiError(error)
+
+    // Re-throw with parsed error info attached
+    const enhancedError = error instanceof Error ? error : new Error('Generation failed')
+    ;(enhancedError as any).isRateLimitError = parsedError.isRateLimitError
+    ;(enhancedError as any).retryDelaySeconds = parsedError.retryDelaySeconds
+
+    throw enhancedError
   }
 }
 

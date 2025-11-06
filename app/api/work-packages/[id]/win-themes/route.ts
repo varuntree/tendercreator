@@ -62,11 +62,18 @@ export async function POST(
     return Response.json({ success: true, win_themes: winThemes })
   } catch (error) {
     console.error('Win themes generation error:', error)
+
+    // Check if this is a rate limit error
+    const isRateLimitError = (error as any).isRateLimitError || false
+    const retryDelaySeconds = (error as any).retryDelaySeconds || null
+
     return Response.json(
       {
         error: error instanceof Error ? error.message : 'Generation failed',
+        isRateLimitError,
+        retryDelaySeconds,
       },
-      { status: 500 }
+      { status: isRateLimitError ? 429 : 500 }
     )
   }
 }

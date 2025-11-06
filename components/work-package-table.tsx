@@ -1,10 +1,11 @@
 'use client'
 
 import { Circle, CircleCheck, CircleDot, Loader2 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
+import { TextShimmer } from '@/components/ui/text-shimmer'
 import {
   Select,
   SelectContent,
@@ -50,6 +51,15 @@ const mockUsers = [
   { id: 'writer_b', name: 'Writer B' },
 ]
 
+const LOADING_MESSAGES = [
+  'Generating documents...',
+  'Extracting requirements...',
+  'Mapping compliance points...',
+  'Drafting responses...',
+  'Refining win themes...',
+  'Polishing narratives...',
+] as const
+
 export function WorkPackageTable({
   workPackages,
   onAssignmentChange,
@@ -59,20 +69,13 @@ export function WorkPackageTable({
 }: WorkPackageTableProps) {
   const [generatingIds, setGeneratingIds] = useState<string[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
+  const [messageIndex, setMessageIndex] = useState(0)
 
   // Calculate pending documents count
   const pendingCount = workPackages.filter(wp => wp.status !== 'completed').length
   const allCompleted = pendingCount === 0
 
-  const getStatusDisplay = (status: string, isGenerating: boolean) => {
-    if (isGenerating) {
-      return {
-        icon: Loader2,
-        label: 'Generating...',
-        className: 'text-blue-600 animate-spin',
-      }
-    }
-
+  const getStatusDisplay = (status: string) => {
     switch (status) {
       case 'completed':
         return {
@@ -94,6 +97,19 @@ export function WorkPackageTable({
         }
     }
   }
+
+  useEffect(() => {
+    if (!isGenerating) {
+      setMessageIndex(0)
+      return
+    }
+
+    const interval = window.setInterval(() => {
+      setMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length)
+    }, 3000)
+
+    return () => window.clearInterval(interval)
+  }, [isGenerating])
 
   const getUserName = (userId: string | null) => {
     if (!userId || userId === 'unassigned') return 'Unassigned'
@@ -199,7 +215,7 @@ export function WorkPackageTable({
           <TableBody>
             {workPackages.map((wp) => {
               const isDocGenerating = generatingIds.includes(wp.id)
-              const statusDisplay = getStatusDisplay(wp.status, isDocGenerating)
+              const statusDisplay = getStatusDisplay(wp.status)
               const StatusIcon = statusDisplay.icon
 
               return (
@@ -227,10 +243,19 @@ export function WorkPackageTable({
                     </Select>
                   </TableCell>
                   <TableCell>
-                    <div className={`flex items-center gap-2 ${statusDisplay.className}`}>
-                      <StatusIcon className="h-5 w-5" />
-                      <span className="font-medium">{statusDisplay.label}</span>
-                    </div>
+                    {isDocGenerating ? (
+                      <div className="flex items-center gap-2 text-primary">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <TextShimmer className="text-sm font-semibold tracking-wide" duration={1.2}>
+                          {LOADING_MESSAGES[messageIndex]}
+                        </TextShimmer>
+                      </div>
+                    ) : (
+                      <div className={`flex items-center gap-2 ${statusDisplay.className}`}>
+                        <StatusIcon className="h-5 w-5" />
+                        <span className="font-medium">{statusDisplay.label}</span>
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button
