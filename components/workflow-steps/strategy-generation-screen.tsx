@@ -4,6 +4,8 @@ import { Check, ChevronRight, Edit, LayoutPanelTop, Lightbulb, type LucideIcon, 
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
+import { ProcessLoaderInline, type ProcessLoaderStep } from '@/components/process-loader-overlay'
+import { SegmentedControl } from '@/components/segmented-control'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,12 +14,12 @@ import { LoadingSpinner, Spinner } from '@/components/ui/loading-spinner'
 import { Tabs, TabsContent } from '@/components/ui/tabs'
 import { AssessmentParametersTable } from '@/components/workflow-steps/assessment-parameters-table'
 import { BidRecommendationCard } from '@/components/workflow-steps/bid-recommendation-card'
-import { cn } from '@/lib/utils'
 import { type BidAnalysis } from '@/libs/ai/bid-analysis'
 import { WorkPackageContent } from '@/libs/repositories/work-package-content'
 import { Requirement, WorkPackage } from '@/libs/repositories/work-packages'
 
 type StrategyTab = 'requirements' | 'bid-decision' | 'win-strategy'
+type StepState = 'pending' | 'loading' | 'complete'
 
 const BID_DECISION_STEPS = [
   {
@@ -233,22 +235,68 @@ export function StrategyGenerationScreen({
   const hasGeneratedContent = isContentGenerated || !!initialContent?.content
   const isGenerateDisabled = winThemes.length === 0 || isGeneratingContent || isGeneratingThemes
 
+  const requirementStatus: StepState = workPackage.requirements.length > 0 ? 'complete' : 'pending'
+  const bidStatus: StepState = isGeneratingBidAnalysis
+    ? 'loading'
+    : bidAnalysis
+      ? 'complete'
+      : 'pending'
+  const winStatus: StepState = isGeneratingThemes
+    ? 'loading'
+    : winThemes.length > 0
+      ? 'complete'
+      : 'pending'
+
+  const processSteps: ProcessLoaderStep[] = [
+    {
+      id: 'requirements',
+      label: requirementStatus === 'complete' ? 'Requirements ready' : 'Preparing requirements',
+      helper:
+        requirementStatus === 'complete'
+          ? 'Submission criteria identified.'
+          : 'Collecting mandatory asks and compliance points.',
+    },
+    {
+      id: 'bid',
+      label: bidStatus === 'complete' ? 'Bid / No-Bid ready' : 'Generating Bid / No-Bid analysis',
+      helper:
+        bidStatus === 'complete'
+          ? 'Recommendation and scoring completed.'
+          : 'Evaluating competitiveness and resourcing.',
+    },
+    {
+      id: 'win',
+      label: winStatus === 'complete' ? 'Win themes ready' : 'Developing win strategy',
+      helper:
+        winStatus === 'complete'
+          ? 'Themes finalized for your response.'
+          : 'Drafting differentiators and key messages.',
+    },
+  ]
+
+  const stepStates: StepState[] = [requirementStatus, bidStatus, winStatus]
+  const firstIncompleteIndex = stepStates.findIndex(state => state !== 'complete')
+  const activeProcessStep = firstIncompleteIndex === -1 ? processSteps.length - 1 : firstIncompleteIndex
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-        <div>
+      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
+        <div className="space-y-4">
           <h2 className="text-2xl md:text-3xl font-bold">Tender Planning</h2>
           <p className="text-base text-muted-foreground">
             Review requirements, assess bid decision, develop win strategy, and generate content
           </p>
-          {isGeneratingBidAnalysis && activeSubTab !== 'bid-decision' && (
-            <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-dashed border-primary/40 px-3 py-1 text-xs text-primary">
-              <Spinner size="sm" className="size-3" />
-              Bid/No-Bid analysis in progress
-            </div>
-          )}
+          <ProcessLoaderInline
+            title="Preparing workspace"
+            subtitle="We're setting up the context needed for this document."
+            steps={processSteps}
+            activeStep={activeProcessStep}
+            iconLabel="TC"
+            tone="warm"
+            className="max-w-2xl"
+          />
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
           {hasGeneratedContent && (
             <Button
               variant="outline"
@@ -287,39 +335,13 @@ export function StrategyGenerationScreen({
       )}
 
       {/* Tab Navigation */}
-      <div className="rounded-3xl bg-muted/40 p-2">
-        <div className="flex flex-wrap gap-2">
-          {STRATEGY_TABS.map(tab => {
-            const Icon = tab.icon
-            const isActive = activeSubTab === tab.value
-            return (
-              <button
-                key={tab.value}
-                type="button"
-                onClick={() => setActiveSubTab(tab.value)}
-                className={cn(
-                  'group flex items-center gap-3 rounded-2xl border px-4 py-3 transition-all',
-                  isActive
-                    ? 'border-emerald-200 bg-background text-emerald-700 shadow-sm'
-                    : 'border-transparent bg-transparent text-muted-foreground hover:bg-background hover:text-foreground'
-                )}
-              >
-                <span
-                  className={cn(
-                    'grid size-10 place-content-center rounded-xl border text-base',
-                    isActive
-                      ? 'border-emerald-200 bg-emerald-50 text-emerald-600'
-                      : 'border-muted bg-muted/60 text-muted-foreground'
-                  )}
-                >
-                  <Icon className="size-4" />
-                </span>
-                <span className="text-sm font-semibold tracking-tight">{tab.label}</span>
-              </button>
-            )
-          })}
-        </div>
-      </div>
+      <SegmentedControl
+        value={activeSubTab}
+        onChange={value => setActiveSubTab(value as StrategyTab)}
+        items={STRATEGY_TABS.map(tab => ({ value: tab.value, label: tab.label, icon: tab.icon }))}
+        className="flex flex-wrap gap-2"
+        fullWidth
+      />
 
       <Tabs value={activeSubTab} onValueChange={(value) => setActiveSubTab(value as StrategyTab)} className="w-full">
         {/* Tab 1: Requirements */}

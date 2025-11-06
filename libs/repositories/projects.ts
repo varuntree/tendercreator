@@ -28,6 +28,7 @@ export async function createProject(
     organization_id: string
     name: string
     client_name?: string
+    start_date?: string
     deadline?: string
     instructions?: string
     created_by: string
@@ -40,6 +41,7 @@ export async function createProject(
       organization_id: data.organization_id,
       name: data.name,
       client_name: data.client_name || null,
+      start_date: data.start_date || null,
       deadline: data.deadline || null,
       instructions: data.instructions || null,
       created_by: data.created_by,
@@ -58,6 +60,7 @@ export async function updateProject(
   data: {
     name?: string
     client_name?: string
+    start_date?: string
     deadline?: string
     instructions?: string
     status?: 'setup' | 'analysis' | 'in_progress' | 'completed' | 'archived'

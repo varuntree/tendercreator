@@ -181,6 +181,80 @@ export function ProcessLoaderOverlay({
   )
 }
 
+interface ProcessLoaderInlineProps {
+  title: string
+  subtitle?: string
+  steps: ProcessLoaderStep[]
+  activeStep: number
+  iconLabel?: string
+  tone?: 'neutral' | 'warm'
+  className?: string
+}
+
+export function ProcessLoaderInline({
+  title,
+  subtitle,
+  steps,
+  activeStep,
+  iconLabel = 'TC',
+  tone = 'warm',
+  className,
+}: ProcessLoaderInlineProps) {
+  const clampedStep = Math.min(Math.max(activeStep, 0), steps.length - 1)
+  const progressPercent = ((Math.min(clampedStep, steps.length - 1) + 1) / steps.length) * 100
+
+  return (
+    <div
+      className={cn(
+        'relative overflow-hidden rounded-[24px] border border-emerald-200/50 bg-white p-5 shadow-sm sm:p-6',
+        tone === 'warm' && 'bg-emerald-50/40',
+        className
+      )}
+    >
+      <div className="absolute left-0 top-0 h-1 w-full bg-emerald-100" aria-hidden>
+        <span
+          className="block h-full bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-400 transition-[width] duration-700 ease-out"
+          style={{ width: `${progressPercent}%` }}
+        />
+      </div>
+
+      <div className="flex items-center gap-3 pb-4 pt-1">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-700 shadow-inner">
+          {iconLabel}
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-emerald-900">{title}</p>
+          {subtitle ? <p className="text-xs text-emerald-700">{subtitle}</p> : null}
+        </div>
+      </div>
+
+      <div className="space-y-3 pt-1">
+        {steps.map((step, index) => {
+          const status = clampedStep > index ? 'complete' : clampedStep === index ? 'active' : 'pending'
+          return (
+            <div key={step.id} className="flex items-start gap-3">
+              <StepIndicator status={status} />
+              <div>
+                <p
+                  className={cn(
+                    'text-sm font-medium',
+                    status === 'complete' && 'text-emerald-700',
+                    status === 'active' && 'text-emerald-900',
+                    status === 'pending' && 'text-gray-400'
+                  )}
+                >
+                  {step.label}
+                </p>
+                {step.helper ? <p className="text-xs text-gray-400">{step.helper}</p> : null}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 function StepIndicator({ status }: { status: 'pending' | 'active' | 'complete' }) {
   if (status === 'complete') {
     return (

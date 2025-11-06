@@ -64,10 +64,11 @@ const LOADING_MESSAGES = [
 export function WorkPackageTable({
   workPackages,
   onAssignmentChange,
-  onStatusChange: _onStatusChange,
+  onStatusChange,
   onOpen,
   onRefresh,
 }: WorkPackageTableProps) {
+  void onStatusChange
   const [generatingIds, setGeneratingIds] = useState<string[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   const [messageIndex, setMessageIndex] = useState(0)

@@ -49,11 +49,13 @@ async function handlePOST(
   try {
     const { id: projectId } = await routeContext.params
     const formData = await request.formData()
-    const file = formData.get('file') as File
+    const file = formData.get('file') as File | null
+    const pastedContent = formData.get('content_text') as string | null
+    const providedName = (formData.get('name') as string | null)?.trim()
     const isPrimary = formData.get('is_primary_rft') === 'true'
 
-    if (!file) {
-      return apiError('No file provided', 400)
+    if (!file && (!pastedContent || !providedName)) {
+      return apiError('No file or content provided', 400)
     }
 
     // Get project to verify access
@@ -61,33 +63,39 @@ async function handlePOST(
 
     // Upload to Supabase Storage
     const fileId = crypto.randomUUID()
-    const filePath = `${project.organization_id}/projects/${projectId}/${fileId}/${file.name}`
 
-    const fileBuffer = Buffer.from(await file.arrayBuffer())
+    const resolveFileName = () => {
+      if (file) return file.name
+      if (!providedName) return `pasted-document-${fileId}.txt`
+      return /\.[A-Za-z0-9]+$/.test(providedName) ? providedName : `${providedName}.txt`
+    }
+
+    const fileName = resolveFileName()
+    const filePath = `${project.organization_id}/projects/${projectId}/${fileId}/${fileName}`
+
+    const fileBuffer = file ? Buffer.from(await file.arrayBuffer()) : Buffer.from(pastedContent ?? '', 'utf-8')
+    const contentType = file ? file.type : 'text/plain'
+    const fileSize = file ? file.size : Buffer.byteLength(pastedContent ?? '', 'utf-8')
 
     const { error: uploadError } = await supabase.storage
       .from('documents')
       .upload(filePath, fileBuffer, {
-        contentType: file.type,
+        contentType,
         upsert: false,
       })
 
     if (uploadError) throw uploadError
 
-    // Extract text via Gemini
-    const contentText = await extractTextFromFile(
-      fileBuffer,
-      file.name,
-      file.type
-    )
+    const contentText = file
+      ? await extractTextFromFile(fileBuffer, file.name, file.type)
+      : pastedContent ?? ''
 
-    // Create document record
     const document = await createProjectDocument(supabase, {
       project_id: projectId,
-      name: file.name,
+      name: fileName,
       file_path: filePath,
-      file_type: file.type,
-      file_size: file.size,
+      file_type: contentType || 'application/octet-stream',
+      file_size: fileSize,
       uploaded_by: user.id,
       is_primary_rft: isPrimary,
       content_text: contentText,

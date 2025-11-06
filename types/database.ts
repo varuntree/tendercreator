@@ -3,8 +3,9 @@ export interface Project {
   organization_id: string
   name: string
   client_name?: string
+  start_date?: string
   deadline?: string
-  status: 'draft' | 'active' | 'completed' | 'archived'
+  status: 'setup' | 'analysis' | 'in_progress' | 'completed' | 'archived'
   instructions?: string
   created_by: string
   created_at: string

@@ -1,16 +1,17 @@
 'use client'
 
-import { ArrowLeft, FileQuestion, MoreHorizontal, Plus } from 'lucide-react'
+import { ArrowLeft, FileQuestion, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 import { AnalysisTrigger } from '@/components/analysis-trigger'
+import { EditProjectDetailsDialog, type ProjectUpdatePayload } from '@/components/edit-project-details-dialog'
 import { EmptyState } from '@/components/empty-state'
 import FileUpload from '@/components/file-upload'
-import SimpleDocumentList from '@/components/simple-document-list'
+import { ProjectDocumentsTable } from '@/components/project-documents-table'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { WorkPackageDashboard } from '@/components/work-package-dashboard'
 
@@ -35,12 +36,6 @@ const statusDisplayMap: Record<string, { label: string; tone: 'preparing' | 'ana
   completed: { label: 'Completed', tone: 'default' },
   archived: { label: 'Archived', tone: 'archived' },
 }
-
-const navItems = [
-  { key: 'overview', label: 'Overview', active: true },
-  { key: 'qa', label: 'Q&A Workbooks', active: false },
-  { key: 'inputs', label: 'Inputs', active: false },
-]
 
 const formatDate = (value?: string | null) => {
   if (!value) return '--/--/--'
@@ -74,21 +69,19 @@ export default function ProjectDetailPage() {
     id: string
     name: string
     client_name?: string | null
+    start_date?: string | null
     status?: string | null
     deadline?: string | null
     instructions?: string | null
     created_at?: string | null
+    updated_at?: string | null
   } | null>(null)
   const [documents, setDocuments] = useState<{id: string; name: string; file_type: string; file_size: number; uploaded_at: string; is_primary_rft?: boolean; download_url?: string | null}[]>([])
   const [workPackages, setWorkPackages] = useState<WorkPackage[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    loadData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
+    setLoading(true)
     try {
       const [projectRes, docsRes, packagesRes] = await Promise.all([
         fetch(`/api/projects/${projectId}`),
@@ -108,20 +101,126 @@ export default function ProjectDetailPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [projectId])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   const handleUpload = async (file: File) => {
     const formData = new FormData()
     formData.append('file', file)
 
-    const response = await fetch(`/api/projects/${projectId}/documents`, {
-      method: 'POST',
-      body: formData,
-    })
+    try {
+      const response = await fetch(`/api/projects/${projectId}/documents`, {
+        method: 'POST',
+        body: formData,
+      })
 
-    const result = await response.json()
-    if (result.success) {
+      const result = await response.json()
+      if (!result.success) {
+        throw new Error(result.error ?? 'Unable to upload document')
+      }
+
+      toast.success('Document uploaded')
       await loadData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to upload document'
+      console.error('Document upload failed:', error)
+      toast.error(message)
+      throw error instanceof Error ? error : new Error(message)
+    }
+  }
+
+  const handlePasteText = async ({ name, content }: { name: string; content: string }) => {
+    const formData = new FormData()
+    formData.append('name', name)
+    formData.append('content_text', content)
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}/documents`, {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await response.json()
+      if (!result.success) {
+        throw new Error(result.error ?? 'Unable to save pasted document')
+      }
+
+      toast.success('Text saved as project document')
+      await loadData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to save pasted document'
+      console.error('Pasted document upload failed:', error)
+      toast.error(message)
+      throw error instanceof Error ? error : new Error(message)
+    }
+  }
+
+  const handleDeleteDocument = async (docId: string) => {
+    const confirmed = window.confirm('Delete this document? This action cannot be undone.')
+    if (!confirmed) return
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}/documents/${docId}`, {
+        method: 'DELETE',
+      })
+
+      const result = await response.json()
+      if (!result.success) {
+        throw new Error(result.error ?? 'Unable to delete document')
+      }
+
+      toast.success('Document deleted')
+      await loadData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to delete document'
+      console.error('Document delete failed:', error)
+      toast.error(message)
+    }
+  }
+
+  const handleSetPrimaryDocument = async (docId: string) => {
+    try {
+      const response = await fetch(`/api/projects/${projectId}/documents/${docId}/primary`, {
+        method: 'POST',
+      })
+
+      const result = await response.json()
+      if (!result.success) {
+        throw new Error(result.error ?? 'Unable to set primary RFT')
+      }
+
+      toast.success('Primary RFT updated')
+      await loadData()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to update primary RFT'
+      console.error('Primary document update failed:', error)
+      toast.error(message)
+    }
+  }
+
+  const handleProjectUpdate = async (updates: ProjectUpdatePayload) => {
+    try {
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      })
+
+      const result = await response.json()
+      if (!result.success) {
+        throw new Error(result.error ?? 'Unable to update project details')
+      }
+
+      setProject(result.data)
+      toast.success('Project details updated')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to update project details'
+      console.error('Project update failed:', error)
+      toast.error(message)
+      throw error instanceof Error ? error : new Error(message)
     }
   }
 
@@ -131,15 +230,31 @@ export default function ProjectDetailPage() {
   }, [project?.status])
 
   const projectInitials = useMemo(() => getInitials(project?.name), [project?.name])
+  const uploadInputId = useMemo(() => `project-${projectId}-file-upload`, [projectId])
+  const timeLeft = useMemo(() => {
+    if (!project?.deadline) return 'N/A'
+    try {
+      const deadline = new Date(project.deadline)
+      const diffMs = deadline.getTime() - Date.now()
+      if (Number.isNaN(diffMs)) return 'N/A'
+      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+      if (diffDays > 0) return `${diffDays} day${diffDays === 1 ? '' : 's'}`
+      if (diffDays === 0) return 'Due today'
+      return `${Math.abs(diffDays)} day${diffDays === -1 ? '' : 's'} past due`
+    } catch {
+      return 'N/A'
+    }
+  }, [project?.deadline])
+
   const quickStats = useMemo(
     () => [
       { label: 'Client Name', value: project?.client_name || 'N/A' },
-      { label: 'Start Date', value: formatDate(project?.created_at) },
+      { label: 'Start Date', value: formatDate(project?.start_date ?? project?.created_at) },
       { label: 'Deadline', value: formatDate(project?.deadline) },
-      { label: 'Time Left', value: 'N/A' },
+      { label: 'Time Left', value: timeLeft },
       { label: 'Project Status', value: statusDisplay.label },
     ],
-    [project?.client_name, project?.created_at, project?.deadline, statusDisplay.label]
+    [project?.client_name, project?.start_date, project?.created_at, project?.deadline, statusDisplay.label, timeLeft]
   )
 
   if (loading) {
@@ -162,19 +277,15 @@ export default function ProjectDetailPage() {
             <ArrowLeft className="size-4" />
             Back to all projects
           </Link>
-          <div className="flex items-center gap-2 rounded-full bg-muted/60 p-1">
-            {navItems.map(item => (
-              <button
-                key={item.key}
-                type="button"
-                className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
-                  item.active ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
+          <EditProjectDetailsDialog
+            project={project}
+            onSubmit={handleProjectUpdate}
+            trigger={
+              <Button variant="outline" size="sm">
+                Edit project details
+              </Button>
+            }
+          />
         </div>
 
         <section className="rounded-3xl border bg-card shadow-sm">
@@ -208,11 +319,11 @@ export default function ProjectDetailPage() {
             </div>
 
             <div className="flex w-full max-w-[220px] flex-col items-end gap-4 self-stretch">
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col items-end gap-2">
                 <span
                   className={`rounded-full border px-3 py-1 text-xs font-semibold ${
                     statusDisplay.tone === 'preparing'
-                      ? 'border-violet-200 bg-violet-50 text-violet-700'
+                      ? 'border-primary/30 bg-primary/10 text-primary'
                       : statusDisplay.tone === 'analysis'
                         ? 'border-amber-200 bg-amber-50 text-amber-700'
                         : statusDisplay.tone === 'active'
@@ -224,55 +335,55 @@ export default function ProjectDetailPage() {
                 >
                   {statusDisplay.label}
                 </span>
-                <Button variant="ghost" size="icon" className="shrink-0 text-muted-foreground">
-                  <MoreHorizontal className="size-4" />
-                </Button>
+                {project?.updated_at ? (
+                  <span className="text-xs text-muted-foreground">Updated {formatDate(project.updated_at)}</span>
+                ) : null}
               </div>
               <div className="grid size-16 place-content-center rounded-full bg-primary/10 text-base font-semibold uppercase text-primary">
                 {projectInitials}
               </div>
             </div>
           </div>
+
+          <div className="space-y-6 border-t border-muted/60 px-8 py-6">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">Uploaded Documents</h2>
+                <p className="text-sm text-muted-foreground">
+                  Review the RFT files and supporting materials added to this project.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById(uploadInputId)?.click()}
+                className="self-start"
+              >
+                <Plus className="mr-2 size-4" />
+                Add document
+              </Button>
+            </div>
+
+            <ProjectDocumentsTable
+              documents={documents}
+              onDelete={handleDeleteDocument}
+              onSetPrimary={handleSetPrimaryDocument}
+            />
+          </div>
         </section>
       </div>
 
       <div className="space-y-8">
-        <Card className="rounded-3xl border bg-card shadow-sm">
-          <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
-              <CardTitle className="text-xl">Uploaded Documents</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Review and download the files originally provided for this project.
-              </p>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => document.getElementById('file-upload')?.click()}>
-              <Plus className="mr-2 size-4" />
-              Add document
-            </Button>
-          </CardHeader>
-          <CardContent>
-            {documents.length === 0 ? (
-              <div className="flex items-center justify-center rounded-2xl border border-dashed border-muted px-6 py-10 text-sm text-muted-foreground">
-                No documents uploaded yet.
-              </div>
-            ) : (
-              <SimpleDocumentList documents={documents} />
-            )}
-          </CardContent>
-        </Card>
+        {workPackages.length === 0 && (
+          <FileUpload onUpload={handleUpload} onPasteText={handlePasteText} inputId={uploadInputId} />
+        )}
 
-        {project.status === 'setup' && (
-          <div className="space-y-6">
-            <FileUpload onUpload={handleUpload} />
-
-            {documents.length > 0 && (
-              <AnalysisTrigger
-                projectId={projectId}
-                projectStatus={project.status || 'setup'}
-                onAnalysisComplete={loadData}
-              />
-            )}
-          </div>
+        {project.status === 'setup' && documents.length > 0 && (
+          <AnalysisTrigger
+            projectId={projectId}
+            projectStatus={project.status || 'setup'}
+            onAnalysisComplete={loadData}
+          />
         )}
 
         {project.status === 'in_progress' && (

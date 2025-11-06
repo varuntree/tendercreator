@@ -25,10 +25,11 @@ interface ProjectDocumentUploaderProps {
 export default function ProjectDocumentUploader({
   documents,
   onUpload,
-  onDelete: _onDelete,
+  onDelete,
   onAnalyze,
   projectStatus,
 }: ProjectDocumentUploaderProps) {
+  void onDelete
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
