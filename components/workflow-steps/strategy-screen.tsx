@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Check, ChevronLeft, ChevronRight, Edit, Plus, Sparkles, Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
+
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Loader2, Plus, Trash2, Edit, Check, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react'
-import { toast } from 'sonner'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 interface StrategyScreenProps {
   workPackageId: string
@@ -26,8 +28,8 @@ export function StrategyScreen({
   const [editText, setEditText] = useState('')
 
   const handleGenerate = async () => {
-    setIsGenerating(true)
     try {
+      setIsGenerating(true)
       const res = await fetch(`/api/work-packages/${workPackageId}/win-themes`, {
         method: 'POST',
       })
@@ -38,7 +40,7 @@ export function StrategyScreen({
       } else {
         toast.error(data.error || 'Failed to generate win themes')
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to generate win themes')
     } finally {
       setIsGenerating(false)
@@ -78,24 +80,21 @@ export function StrategyScreen({
       {winThemes.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
-            <Sparkles className="mx-auto size-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Win Themes Yet</h3>
-            <p className="text-muted-foreground mb-4">
-              Generate win themes using AI to guide your document creation
-            </p>
-            <Button onClick={handleGenerate} disabled={isGenerating}>
-              {isGenerating ? (
-                <>
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
+            {isGenerating ? (
+              <LoadingSpinner size="lg" text="Generating win themes..." />
+            ) : (
+              <>
+                <Sparkles className="mx-auto size-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Win Themes Yet</h3>
+                <p className="text-muted-foreground mb-4">
+                  Generate win themes using AI to guide your document creation
+                </p>
+                <Button onClick={handleGenerate} disabled={isGenerating}>
                   <Sparkles className="mr-2 size-4" />
                   Generate Win Themes
-                </>
-              )}
-            </Button>
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       ) : (

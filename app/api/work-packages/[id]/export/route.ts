@@ -1,15 +1,16 @@
 export const runtime = 'nodejs' // Need docx library
 
 import { NextRequest } from 'next/server'
-import { createClient } from '@/libs/supabase/server'
-import {
-  getWorkPackageWithProject,
-  updateWorkPackageStatus,
-} from '@/libs/repositories/work-packages'
+
 import {
   getWorkPackageContent,
   saveExportedFile,
 } from '@/libs/repositories/work-package-content'
+import {
+  getWorkPackageWithProject,
+  updateWorkPackageStatus,
+} from '@/libs/repositories/work-packages'
+import { createClient } from '@/libs/supabase/server'
 import { convertMarkdownToDocx } from '@/libs/utils/export-docx'
 
 export async function POST(
@@ -57,7 +58,7 @@ export async function POST(
 
     // Upload to Supabase Storage
     const filePath = `${project.organization_id}/exports/${workPackageId}/${filename}`
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from('documents')
       .upload(filePath, blob, { upsert: true })
 

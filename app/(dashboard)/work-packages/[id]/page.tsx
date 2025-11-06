@@ -1,7 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { TabsContent } from '@/components/ui/tabs'
 import { EditorScreen } from '@/components/workflow-steps/editor-screen'
@@ -10,6 +10,7 @@ import { GenerationScreen } from '@/components/workflow-steps/generation-screen'
 import { RequirementsView } from '@/components/workflow-steps/requirements-view'
 import { StrategyScreen } from '@/components/workflow-steps/strategy-screen'
 import { WorkflowTabs } from '@/components/workflow-steps/workflow-tabs'
+import { WorkPackage } from '@/libs/repositories/work-packages'
 
 interface WorkPackagePageProps {
   params: Promise<{
@@ -19,10 +20,10 @@ interface WorkPackagePageProps {
 
 export default function WorkPackagePage({ params }: WorkPackagePageProps) {
   const [workPackageId, setWorkPackageId] = useState<string | null>(null)
-  const [workPackage, setWorkPackage] = useState<Record<string, any> | null>(null)
-  const [project, setProject] = useState<Record<string, any> | null>(null)
-  const [content, setContent] = useState<Record<string, any> | null>(null)
-  const [currentTab, setCurrentTab] = useState<string>('requirements')
+  const [workPackage, setWorkPackage] = useState<WorkPackage | null>(null)
+  const [project, setProject] = useState<{ id: string; name: string } | null>(null)
+  const [content, setContent] = useState<Record<string, unknown> | null>(null)
+  const [currentTab, setCurrentTab] = useState<'requirements' | 'strategy' | 'generate' | 'edit' | 'export'>('requirements')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -57,7 +58,7 @@ export default function WorkPackagePage({ params }: WorkPackagePageProps) {
             setCurrentTab('strategy')
           }
         }
-      } catch (error) {
+      } catch {
         // Content doesn't exist yet
       }
 
@@ -75,7 +76,7 @@ export default function WorkPackagePage({ params }: WorkPackagePageProps) {
 
   const getCompletedSteps = () => {
     const steps = ['requirements']
-    if (content?.win_themes && content.win_themes.length > 0) {
+    if (content?.win_themes && Array.isArray(content.win_themes) && content.win_themes.length > 0) {
       steps.push('strategy')
     }
     if (content?.content) {
@@ -108,7 +109,7 @@ export default function WorkPackagePage({ params }: WorkPackagePageProps) {
       <WorkflowTabs
         workPackageId={workPackageId}
         currentTab={currentTab}
-        onTabChange={setCurrentTab}
+        onTabChange={(tab: string) => setCurrentTab(tab as typeof currentTab)}
         completedSteps={getCompletedSteps()}
       >
         <TabsContent value="requirements">
@@ -122,7 +123,7 @@ export default function WorkPackagePage({ params }: WorkPackagePageProps) {
         <TabsContent value="strategy">
           <StrategyScreen
             workPackageId={workPackageId}
-            initialWinThemes={content?.win_themes}
+            initialWinThemes={content?.win_themes as string[] | undefined}
             onContinue={() => setCurrentTab('generate')}
             onBack={() => setCurrentTab('requirements')}
           />
@@ -132,7 +133,7 @@ export default function WorkPackagePage({ params }: WorkPackagePageProps) {
           <GenerationScreen
             workPackageId={workPackageId}
             workPackage={workPackage}
-            winThemesCount={content?.win_themes?.length || 0}
+            winThemesCount={Array.isArray(content?.win_themes) ? content.win_themes.length : 0}
             onContinue={() => setCurrentTab('edit')}
             onBack={() => setCurrentTab('strategy')}
           />
@@ -141,7 +142,7 @@ export default function WorkPackagePage({ params }: WorkPackagePageProps) {
         <TabsContent value="edit">
           <EditorScreen
             workPackageId={workPackageId}
-            initialContent={content?.content || ''}
+            initialContent={(content?.content as string) || ''}
             onContinue={() => setCurrentTab('export')}
             onBack={() => setCurrentTab('generate')}
           />

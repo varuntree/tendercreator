@@ -25,7 +25,7 @@ interface WorkPackage {
     source: string
   }>
   assigned_to: string | null
-  status: 'not_started' | 'in_progress' | 'completed'
+  status: 'pending' | 'in_progress' | 'completed'
 }
 
 interface WorkPackageCardProps {

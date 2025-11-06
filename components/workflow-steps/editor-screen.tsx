@@ -1,7 +1,9 @@
 'use client'
 
+import { ChevronLeft,ChevronRight } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
-import { ChevronRight, ChevronLeft } from 'lucide-react'
+
 import { ContentEditor } from './content-editor'
 
 interface EditorScreenProps {

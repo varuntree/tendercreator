@@ -1,15 +1,11 @@
 'use client'
 
+import { Download } from 'lucide-react'
 import { useState } from 'react'
-import { Download, Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 interface BulkExportButtonProps {
   projectId: string
@@ -22,11 +18,11 @@ export function BulkExportButton({ projectId, completedCount }: BulkExportButton
   const [error, setError] = useState<string | null>(null)
 
   const handleExport = async () => {
-    setIsExporting(true)
-    setShowProgress(true)
-    setError(null)
-
     try {
+      setIsExporting(true)
+      setShowProgress(true)
+      setError(null)
+
       const response = await fetch(`/api/projects/${projectId}/export`, {
         method: 'POST'
       })
@@ -78,9 +74,11 @@ export function BulkExportButton({ projectId, completedCount }: BulkExportButton
               <p className="text-sm">{error}</p>
             </div>
           ) : (
-            <div className="flex items-center gap-3 py-4">
-              <Loader2 className="h-6 w-6 animate-spin" />
-              <p>Exporting {completedCount} documents...</p>
+            <div className="py-4">
+              <LoadingSpinner
+                size="md"
+                text={`Exporting ${completedCount} documents...`}
+              />
             </div>
           )}
         </DialogContent>

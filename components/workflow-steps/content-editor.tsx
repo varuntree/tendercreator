@@ -1,13 +1,14 @@
 'use client'
 
-import { useEditor, EditorContent } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
-import Placeholder from '@tiptap/extension-placeholder'
 import CharacterCount from '@tiptap/extension-character-count'
-import { useEffect, useState, useMemo } from 'react'
-import { EditorToolbar } from './editor-toolbar'
-import { toast } from 'sonner'
+import Placeholder from '@tiptap/extension-placeholder'
+import { EditorContent,useEditor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
 import debounce from 'lodash/debounce'
+import { useEffect, useMemo,useState } from 'react'
+import { toast } from 'sonner'
+
+import { EditorToolbar } from './editor-toolbar'
 
 interface ContentEditorProps {
   workPackageId: string
@@ -59,7 +60,7 @@ export function ContentEditor({ workPackageId, initialContent, onContentChange }
             setSaveStatus('error')
             toast.error('Failed to save changes')
           }
-        } catch (error) {
+        } catch {
           setSaveStatus('error')
           toast.error('Failed to save changes')
         }

@@ -1,7 +1,8 @@
 'use client'
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Check, Lock } from 'lucide-react'
+
+import { Tabs,TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface WorkflowTabsProps {
   workPackageId: string

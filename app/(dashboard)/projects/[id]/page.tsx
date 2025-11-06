@@ -1,11 +1,13 @@
 'use client'
 
+import { FileQuestion } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { AnalysisTrigger } from '@/components/analysis-trigger'
 import { BulkExportButton } from '@/components/bulk-export-button'
 import DocumentList from '@/components/document-list'
+import { EmptyState } from '@/components/empty-state'
 import FileUpload from '@/components/file-upload'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -167,11 +169,19 @@ export default function ProjectDetailPage() {
               )}
             </div>
 
-            <WorkPackageDashboard
-              projectId={projectId}
-              workPackages={workPackages}
-              onUpdate={loadData}
-            />
+            {workPackages.length === 0 ? (
+              <EmptyState
+                icon={FileQuestion}
+                heading="Analysis pending"
+                description="Click 'Analyze RFT' to identify submission documents."
+              />
+            ) : (
+              <WorkPackageDashboard
+                projectId={projectId}
+                workPackages={workPackages}
+                onUpdate={loadData}
+              />
+            )}
           </>
         )}
       </div>

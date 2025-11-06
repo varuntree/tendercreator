@@ -1,14 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Loader2, FileDown, Check, Home, ArrowRight } from 'lucide-react'
-import { toast } from 'sonner'
-import { WorkPackage } from '@/libs/repositories/work-packages'
+import { ArrowRight, Check, FileDown, Home } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { WorkPackage } from '@/libs/repositories/work-packages'
 
 interface ExportScreenProps {
   workPackageId: string
@@ -40,8 +42,8 @@ export function ExportScreen({
   }, [projectId])
 
   const handleExport = async () => {
-    setIsExporting(true)
     try {
+      setIsExporting(true)
       const res = await fetch(`/api/work-packages/${workPackageId}/export`, {
         method: 'POST',
       })
@@ -58,7 +60,7 @@ export function ExportScreen({
       } else {
         toast.error(data.error || 'Failed to export document')
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to export document')
     } finally {
       setIsExporting(false)
@@ -157,19 +159,18 @@ export function ExportScreen({
         </CardContent>
       </Card>
 
-      <Button onClick={handleExport} disabled={isExporting} size="lg" className="w-full">
-        {isExporting ? (
-          <>
-            <Loader2 className="mr-2 size-5 animate-spin" />
-            Exporting...
-          </>
-        ) : (
-          <>
-            <FileDown className="mr-2 size-5" />
-            Export as Word Document
-          </>
-        )}
-      </Button>
+      {isExporting ? (
+        <Card>
+          <CardContent className="p-6">
+            <LoadingSpinner size="md" text="Exporting document..." />
+          </CardContent>
+        </Card>
+      ) : (
+        <Button onClick={handleExport} disabled={isExporting} size="lg" className="w-full">
+          <FileDown className="mr-2 size-5" />
+          Export as Word Document
+        </Button>
+      )}
     </div>
   )
 }

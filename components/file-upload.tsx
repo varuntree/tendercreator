@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+
 interface FileUploadProps {
   onUpload: (file: File) => Promise<void>
   accept?: string
@@ -12,8 +14,8 @@ export default function FileUpload({ onUpload, accept = '.pdf,.docx,.txt' }: Fil
   const [dragActive, setDragActive] = useState(false)
 
   const handleFile = async (file: File) => {
-    setUploading(true)
     try {
+      setUploading(true)
       await onUpload(file)
     } finally {
       setUploading(false)
@@ -67,7 +69,7 @@ export default function FileUpload({ onUpload, accept = '.pdf,.docx,.txt' }: Fil
       <label htmlFor="file-upload" className="cursor-pointer">
         <div className="text-sm text-gray-600">
           {uploading ? (
-            <p>Uploading and extracting text...</p>
+            <LoadingSpinner size="md" text="Uploading file..." />
           ) : (
             <>
               <p className="mb-2">Drag and drop file here or click to browse</p>

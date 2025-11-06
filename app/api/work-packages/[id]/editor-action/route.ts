@@ -1,10 +1,11 @@
 export const runtime = 'edge' // Fast AI actions
 
 import { NextRequest } from 'next/server'
-import { createClient } from '@/libs/supabase/server'
-import { getWorkPackageWithProject } from '@/libs/repositories/work-packages'
-import { assembleProjectContext } from '@/libs/ai/context-assembly'
+
 import { executeEditorAction } from '@/libs/ai/content-generation'
+import { assembleProjectContext } from '@/libs/ai/context-assembly'
+import { getWorkPackageWithProject } from '@/libs/repositories/work-packages'
+import { createClient } from '@/libs/supabase/server'
 
 export async function POST(
   request: NextRequest,
@@ -46,7 +47,7 @@ export async function POST(
     const { workPackage, project } = await getWorkPackageWithProject(supabase, workPackageId)
 
     // For actions needing org docs or requirements
-    let context: any = {}
+    const context: Record<string, unknown> = {}
     if (action === 'expand' || action === 'add_evidence') {
       const projectContext = await assembleProjectContext(supabase, project.id)
       context.orgDocs = projectContext.organizationDocs

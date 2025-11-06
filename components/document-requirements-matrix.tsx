@@ -43,7 +43,7 @@ interface WorkPackage {
   document_description: string | null
   requirements: Requirement[]
   assigned_to: string | null
-  status: 'not_started' | 'in_progress' | 'completed'
+  status: 'pending' | 'in_progress' | 'completed'
 }
 
 interface DocumentRequirementsMatrixProps {

@@ -1,8 +1,10 @@
 'use client'
 
+import { Upload } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import DocumentList from '@/components/document-list'
+import { EmptyState } from '@/components/empty-state'
 import FileUpload from '@/components/file-upload'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -76,7 +78,11 @@ export default function OrganizationDocumentsPage() {
             {loading ? (
               <p>Loading...</p>
             ) : documents.length === 0 ? (
-              <p className="text-gray-500">No documents uploaded yet</p>
+              <EmptyState
+                icon={Upload}
+                heading="No company documents"
+                description="Upload capability statements, case studies, and certifications."
+              />
             ) : (
               <DocumentList documents={documents} onDelete={handleDelete} />
             )}

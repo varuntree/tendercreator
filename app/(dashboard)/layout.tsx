@@ -1,3 +1,5 @@
+import '@/app/(dashboard)/globals-dashboard.css'
+
 import { redirect } from 'next/navigation'
 
 import Header from '@/components/header'
@@ -20,7 +22,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="dashboard-layout flex h-screen flex-col">
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <Nav />

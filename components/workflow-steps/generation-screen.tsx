@@ -1,11 +1,13 @@
 'use client'
 
+import { Check, ChevronLeft, FileText, Loader2 } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
+
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Loader2, FileText, ChevronLeft, Check } from 'lucide-react'
-import { toast } from 'sonner'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { WorkPackage } from '@/libs/repositories/work-packages'
 
 interface GenerationScreenProps {
@@ -27,8 +29,8 @@ export function GenerationScreen({
   const [isComplete, setIsComplete] = useState(false)
 
   const handleGenerate = async () => {
-    setIsGenerating(true)
     try {
+      setIsGenerating(true)
       const res = await fetch(`/api/work-packages/${workPackageId}/generate-content`, {
         method: 'POST',
       })
@@ -41,10 +43,10 @@ export function GenerationScreen({
         }, 2000)
       } else {
         toast.error(data.error || 'Failed to generate content')
-        setIsGenerating(false)
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to generate content')
+    } finally {
       setIsGenerating(false)
     }
   }
@@ -104,15 +106,10 @@ export function GenerationScreen({
       {isGenerating && (
         <Card>
           <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <Loader2 className="size-5 animate-spin text-primary" />
-              <div className="flex-1">
-                <p className="font-medium">Generating {workPackage.document_type}...</p>
-                <p className="text-sm text-muted-foreground">
-                  Analyzing requirements and assembling context
-                </p>
-              </div>
-            </div>
+            <LoadingSpinner
+              size="md"
+              text="Generating content... This may take 1-2 minutes."
+            />
           </CardContent>
         </Card>
       )}

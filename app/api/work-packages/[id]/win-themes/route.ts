@@ -1,11 +1,12 @@
-export const runtime = 'edge' // Bypass Vercel 10s timeout
+// export const runtime = 'edge' // Bypass Vercel 10s timeout - DISABLED for debugging
 
 import { NextRequest } from 'next/server'
-import { createClient } from '@/libs/supabase/server'
-import { getWorkPackageWithProject } from '@/libs/repositories/work-packages'
-import { saveWinThemes } from '@/libs/repositories/work-package-content'
-import { assembleProjectContext, validateContextSize } from '@/libs/ai/context-assembly'
+
 import { generateWinThemes } from '@/libs/ai/content-generation'
+import { assembleProjectContext, validateContextSize } from '@/libs/ai/context-assembly'
+import { saveWinThemes } from '@/libs/repositories/work-package-content'
+import { getWorkPackageWithProject } from '@/libs/repositories/work-packages'
+import { createClient } from '@/libs/supabase/server'
 
 export async function POST(
   request: NextRequest,

@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
-import { createClient } from '@/libs/supabase/server'
+
 import { getWorkPackageContent, updateWorkPackageContent } from '@/libs/repositories/work-package-content'
+import { createClient } from '@/libs/supabase/server'
 
 export async function GET(
   request: NextRequest,

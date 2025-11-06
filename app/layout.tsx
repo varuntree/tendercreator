@@ -2,8 +2,6 @@ import './globals.css';
 
 import type { Metadata } from 'next';
 
-import Footer from '@/components/layout/footer';
-import Navbar from '@/components/layout/navbar';
 import { StyleGlideProvider } from '@/components/styleglide-provider';
 import { ThemeProvider } from '@/components/theme-provider';
 import { cn } from '@/lib/utils';
@@ -81,10 +79,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <StyleGlideProvider />
-
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          {children}
         </ThemeProvider>
       </body>
     </html>

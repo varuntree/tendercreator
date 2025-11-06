@@ -1,14 +1,15 @@
 export const runtime = 'edge' // Bypass Vercel 10s timeout
 
 import { NextRequest } from 'next/server'
-import { createClient } from '@/libs/supabase/server'
-import { getWorkPackageWithProject, updateWorkPackageStatus } from '@/libs/repositories/work-packages'
+
+import { generateDocumentContent } from '@/libs/ai/content-generation'
+import { assembleProjectContext, validateContextSize } from '@/libs/ai/context-assembly'
 import {
   getWorkPackageContent,
   saveGeneratedContent,
 } from '@/libs/repositories/work-package-content'
-import { assembleProjectContext, validateContextSize } from '@/libs/ai/context-assembly'
-import { generateDocumentContent } from '@/libs/ai/content-generation'
+import { getWorkPackageWithProject, updateWorkPackageStatus } from '@/libs/repositories/work-packages'
+import { createClient } from '@/libs/supabase/server'
 
 export async function POST(
   request: NextRequest,

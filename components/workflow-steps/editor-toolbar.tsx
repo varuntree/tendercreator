@@ -1,19 +1,20 @@
 'use client'
 
 import { Editor } from '@tiptap/react'
-import { Button } from '@/components/ui/button'
 import {
   Bold,
-  Italic,
-  List,
-  ListOrdered,
-  Undo,
-  Redo,
   Heading1,
   Heading2,
   Heading3,
+  Italic,
+  List,
+  ListOrdered,
+  Redo,
   RemoveFormatting,
+  Undo,
 } from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,

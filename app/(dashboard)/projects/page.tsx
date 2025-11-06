@@ -1,5 +1,7 @@
+import { FolderOpen } from 'lucide-react'
 import Link from 'next/link'
 
+import { EmptyState } from '@/components/empty-state'
 import ProjectCard from '@/components/project-card'
 import { Button } from '@/components/ui/button'
 import { getOrganizationByUserId,listProjects } from '@/libs/repositories'
@@ -42,12 +44,11 @@ export default async function ProjectsPage() {
       </div>
 
       {projects.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">No projects yet</p>
-          <Link href="/projects/new">
-            <Button>Create your first project</Button>
-          </Link>
-        </div>
+        <EmptyState
+          icon={FolderOpen}
+          heading="No projects yet"
+          description="Create your first project to start responding to tenders."
+        />
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (

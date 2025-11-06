@@ -1,0 +1,399 @@
+/**
+ * Dashboard-scoped design tokens
+ * Extracted from TenderCreator UI reference (ui1.png, ui2.png)
+ *
+ * IMPORTANT: This file is imported ONLY in app/(dashboard)/layout.tsx
+ * to ensure landing page styles remain unaffected.
+ */
+
+/* Color Overrides (extracted from screenshots) */
+:root {
+  /* Primary brand color (green from screenshots) */
+  --dashboard-primary: #10B981;
+  --dashboard-primary-hover: #059669;
+  --dashboard-primary-light: rgba(16, 185, 129, 0.1);
+  --dashboard-primary-foreground: #FFFFFF;
+
+  /* Text colors */
+  --dashboard-text-primary: #1F2937;
+  --dashboard-text-body: #4B5563;
+  --dashboard-text-secondary: #6B7280;
+  --dashboard-text-muted: #9CA3AF;
+
+  /* Backgrounds */
+  --dashboard-bg-white: #FFFFFF;
+  --dashboard-bg-gray-50: #F9FAFB;
+  --dashboard-bg-gray-100: #F3F4F6;
+  --dashboard-bg-sidebar: #F3F4F6;
+
+  /* Borders */
+  --dashboard-border: #E5E7EB;
+  --dashboard-border-light: #D1D5DB;
+  --dashboard-border-dashed: #D1D5DB;
+
+  /* Status colors */
+  --dashboard-success: #10B981;
+  --dashboard-warning: #F59E0B;
+  --dashboard-error: #EF4444;
+  --dashboard-muted: #6B7280;
+
+  /* Shadows */
+  --dashboard-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --dashboard-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --dashboard-shadow-dropdown: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  /* Spacing */
+  --dashboard-card-padding: 1.5rem; /* 24px */
+  --dashboard-section-gap: 2rem; /* 32px */
+  --dashboard-input-padding-x: 1rem; /* 16px */
+  --dashboard-input-padding-y: 0.75rem; /* 12px */
+
+  /* Typography */
+  --dashboard-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+
+  /* Border radius */
+  --dashboard-radius-sm: 0.25rem; /* 4px */
+  --dashboard-radius: 0.375rem; /* 6px */
+  --dashboard-radius-md: 0.5rem; /* 8px */
+}
+
+/* Apply to all dashboard routes */
+.dashboard-layout {
+  font-family: var(--dashboard-font-sans);
+  color: var(--dashboard-text-primary);
+}
+
+/* Override shadcn/ui primary colors */
+.dashboard-layout .bg-primary {
+  background-color: var(--dashboard-primary) !important;
+}
+
+.dashboard-layout .text-primary {
+  color: var(--dashboard-primary) !important;
+}
+
+.dashboard-layout .border-primary {
+  border-color: var(--dashboard-primary) !important;
+}
+
+.dashboard-layout .hover\:bg-primary:hover {
+  background-color: var(--dashboard-primary-hover) !important;
+}
+
+/* Button styling to match TenderCreator */
+.dashboard-layout button[class*="bg-primary"],
+.dashboard-layout .btn-primary {
+  background-color: var(--dashboard-primary);
+  color: var(--dashboard-primary-foreground);
+  border-radius: var(--dashboard-radius);
+  font-weight: 500;
+  transition: background-color 200ms ease;
+}
+
+.dashboard-layout button[class*="bg-primary"]:hover,
+.dashboard-layout .btn-primary:hover {
+  background-color: var(--dashboard-primary-hover);
+}
+
+/* Secondary/Outlined button */
+.dashboard-layout .btn-secondary,
+.dashboard-layout button[class*="variant-outline"] {
+  background-color: transparent;
+  color: var(--dashboard-primary);
+  border: 1px solid var(--dashboard-primary);
+  border-radius: var(--dashboard-radius);
+  font-weight: 500;
+  transition: background-color 200ms ease;
+}
+
+.dashboard-layout .btn-secondary:hover,
+.dashboard-layout button[class*="variant-outline"]:hover {
+  background-color: var(--dashboard-primary-light);
+}
+
+/* Card styling to match TenderCreator */
+.dashboard-layout .card,
+.dashboard-layout [class*="rounded-lg"][class*="border"] {
+  border-radius: var(--dashboard-radius-md);
+  box-shadow: var(--dashboard-shadow-sm);
+  border: 1px solid var(--dashboard-border);
+  background-color: var(--dashboard-bg-white);
+}
+
+.dashboard-layout .card-hover:hover {
+  box-shadow: var(--dashboard-shadow-md);
+  transition: box-shadow 200ms ease;
+}
+
+/* Sidebar active state (green background) */
+.dashboard-layout .nav-item {
+  padding: 0.75rem 1rem;
+  border-radius: var(--dashboard-radius);
+  color: var(--dashboard-text-secondary);
+  transition: all 200ms ease;
+}
+
+.dashboard-layout .nav-item:hover {
+  background-color: var(--dashboard-bg-gray-50);
+}
+
+.dashboard-layout .nav-item-active,
+.dashboard-layout .nav-item[data-active="true"] {
+  background-color: var(--dashboard-primary-light);
+  color: var(--dashboard-primary);
+  border-left: 3px solid var(--dashboard-primary);
+  font-weight: 500;
+}
+
+/* Progress indicator (5-step from ui2.png) */
+.dashboard-layout .progress-step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dashboard-layout .progress-step-number {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.dashboard-layout .progress-step-active .progress-step-number {
+  background-color: var(--dashboard-primary);
+  color: var(--dashboard-primary-foreground);
+}
+
+.dashboard-layout .progress-step-inactive .progress-step-number {
+  background-color: var(--dashboard-bg-gray-100);
+  color: var(--dashboard-text-muted);
+}
+
+.dashboard-layout .progress-step-label {
+  font-size: 0.875rem;
+}
+
+.dashboard-layout .progress-step-active .progress-step-label {
+  color: var(--dashboard-text-primary);
+  font-weight: 600;
+}
+
+.dashboard-layout .progress-step-inactive .progress-step-label {
+  color: var(--dashboard-text-muted);
+  font-weight: 400;
+}
+
+/* Upload zone dashed border (from ui2.png) */
+.dashboard-layout .upload-zone {
+  border: 2px dashed var(--dashboard-border-dashed);
+  border-radius: var(--dashboard-radius-md);
+  padding: 2rem;
+  text-align: center;
+  background-color: var(--dashboard-bg-gray-50);
+  color: var(--dashboard-text-secondary);
+  transition: all 200ms ease;
+  cursor: pointer;
+}
+
+.dashboard-layout .upload-zone:hover {
+  border-color: var(--dashboard-primary);
+  background-color: rgba(16, 185, 129, 0.05);
+}
+
+.dashboard-layout .upload-zone-icon {
+  color: var(--dashboard-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+/* Table styling (from ui1.png) */
+.dashboard-layout table {
+  width: 100%;
+  border: 1px solid var(--dashboard-border);
+  border-radius: var(--dashboard-radius-md);
+  overflow: hidden;
+  border-collapse: collapse;
+}
+
+.dashboard-layout thead {
+  background-color: var(--dashboard-bg-gray-50);
+  border-bottom: 1px solid var(--dashboard-border);
+}
+
+.dashboard-layout th {
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-align: left;
+  color: var(--dashboard-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.dashboard-layout td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--dashboard-border);
+  color: var(--dashboard-text-body);
+}
+
+.dashboard-layout tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.dashboard-layout tbody tr:hover {
+  background-color: var(--dashboard-bg-gray-50);
+}
+
+/* Role badges (from ui1.png) */
+.dashboard-layout .badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--dashboard-radius-sm);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.dashboard-layout .badge-green,
+.dashboard-layout .badge-primary {
+  background-color: var(--dashboard-primary);
+  color: var(--dashboard-primary-foreground);
+}
+
+.dashboard-layout .badge-warning {
+  background-color: var(--dashboard-warning);
+  color: #FFFFFF;
+}
+
+.dashboard-layout .badge-muted {
+  background-color: var(--dashboard-bg-gray-100);
+  color: var(--dashboard-text-secondary);
+}
+
+/* Form inputs */
+.dashboard-layout input[type="text"],
+.dashboard-layout input[type="email"],
+.dashboard-layout input[type="password"],
+.dashboard-layout input[type="search"],
+.dashboard-layout textarea,
+.dashboard-layout select {
+  border: 1px solid var(--dashboard-border-light);
+  border-radius: var(--dashboard-radius);
+  padding: var(--dashboard-input-padding-y) var(--dashboard-input-padding-x);
+  background-color: var(--dashboard-bg-white);
+  color: var(--dashboard-text-primary);
+  font-size: 0.875rem;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.dashboard-layout input[type="text"]:focus,
+.dashboard-layout input[type="email"]:focus,
+.dashboard-layout input[type="password"]:focus,
+.dashboard-layout input[type="search"]:focus,
+.dashboard-layout textarea:focus,
+.dashboard-layout select:focus {
+  outline: none;
+  border-color: var(--dashboard-primary);
+  border-width: 2px;
+  box-shadow: 0 0 0 3px var(--dashboard-primary-light);
+}
+
+.dashboard-layout input::placeholder,
+.dashboard-layout textarea::placeholder {
+  color: var(--dashboard-text-muted);
+}
+
+/* Search input with icon */
+.dashboard-layout .search-input-wrapper {
+  position: relative;
+}
+
+.dashboard-layout .search-input {
+  padding-left: 2.25rem;
+}
+
+.dashboard-layout .search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--dashboard-text-muted);
+  pointer-events: none;
+}
+
+/* Heading styles */
+.dashboard-layout h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--dashboard-text-primary);
+  line-height: 1.25;
+}
+
+.dashboard-layout h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--dashboard-text-primary);
+  line-height: 1.25;
+}
+
+.dashboard-layout h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--dashboard-text-primary);
+  line-height: 1.5;
+}
+
+/* Status indicators */
+.dashboard-layout .status-complete {
+  color: var(--dashboard-success);
+}
+
+.dashboard-layout .status-in-progress {
+  color: var(--dashboard-warning);
+}
+
+.dashboard-layout .status-not-started {
+  color: var(--dashboard-muted);
+}
+
+/* Dropdown menus */
+.dashboard-layout .dropdown-menu {
+  background-color: var(--dashboard-bg-white);
+  border: 1px solid var(--dashboard-border);
+  border-radius: var(--dashboard-radius-md);
+  box-shadow: var(--dashboard-shadow-dropdown);
+  padding: 0.5rem;
+}
+
+.dashboard-layout .dropdown-item {
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--dashboard-radius);
+  color: var(--dashboard-text-body);
+  transition: background-color 200ms ease;
+  cursor: pointer;
+}
+
+.dashboard-layout .dropdown-item:hover {
+  background-color: var(--dashboard-bg-gray-50);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-layout {
+    --dashboard-card-padding: 1rem;
+    --dashboard-section-gap: 1.5rem;
+  }
+
+  .dashboard-layout h1 {
+    font-size: 1.875rem;
+  }
+
+  .dashboard-layout h2 {
+    font-size: 1.25rem;
+  }
+}
