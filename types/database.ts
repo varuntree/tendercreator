@@ -39,3 +39,11 @@ export interface User {
   email: string
   name?: string
 }
+
+export interface Organization {
+  id: string
+  name: string
+  settings: Record<string, unknown>
+  created_at: string
+  updated_at: string
+}

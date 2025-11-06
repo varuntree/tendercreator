@@ -82,3 +82,17 @@ export async function updateOrganization(
   if (error) throw error
   return updated
 }
+
+export async function deleteOrganization(
+  supabase: SupabaseClient,
+  orgId: string
+) {
+  // Delete organization (cascading deletes will handle related data via foreign keys)
+  const { error } = await supabase
+    .from('organizations')
+    .delete()
+    .eq('id', orgId)
+
+  if (error) throw error
+  return { success: true }
+}
