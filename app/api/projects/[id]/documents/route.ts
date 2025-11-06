@@ -16,7 +16,26 @@ async function handleGET(
   try {
     const { id: projectId } = await routeContext.params
     const documents = await listProjectDocuments(supabase, projectId)
-    return apiSuccess(documents)
+
+    const documentsWithUrls = await Promise.all(
+      documents.map(async (doc) => {
+        const { data: signedUrlData, error: signedUrlError } =
+          await supabase.storage
+            .from('documents')
+            .createSignedUrl(doc.file_path, 3600)
+
+        if (signedUrlError) {
+          console.error('Failed to create signed URL for document', doc.id, signedUrlError)
+        }
+
+        return {
+          ...doc,
+          download_url: signedUrlData?.signedUrl ?? null,
+        }
+      })
+    )
+
+    return apiSuccess(documentsWithUrls)
   } catch (error) {
     return apiError(error as Error)
   }

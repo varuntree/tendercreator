@@ -12,6 +12,8 @@ import debounce from 'lodash/debounce'
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
+import { htmlToMarkdown } from '@/libs/utils/html-to-markdown'
+
 import { EditorToolbar } from './editor-toolbar'
 
 const HTML_DETECTION_REGEX = /<\/?[a-z][\s\S]*>/i
@@ -31,6 +33,7 @@ const applyInlineFormatting = (value: string) =>
     .replace(/`(.+?)`/g, '<code>$1</code>')
 
 const parseTable = (lines: string[], startIndex: number): { html: string; endIndex: number } => {
+  console.log('[parseTable] Called at line', startIndex, 'with:', lines[startIndex])
   const tableLines: string[] = []
   let i = startIndex
 
@@ -41,7 +44,9 @@ const parseTable = (lines: string[], startIndex: number): { html: string; endInd
     if (i < lines.length && !lines[i].trim()) break
   }
 
+  console.log('[parseTable] Collected', tableLines.length, 'table lines')
   if (tableLines.length < 2) {
+    console.log('[parseTable] Not enough lines for table, returning empty')
     return { html: '', endIndex: startIndex }
   }
 
@@ -75,6 +80,7 @@ const parseTable = (lines: string[], startIndex: number): { html: string; endInd
 
   html += '</tbody></table>'
 
+  console.log('[parseTable] Generated table HTML:', html.substring(0, 100))
   return { html, endIndex: i }
 }
 
@@ -99,14 +105,21 @@ const convertMarkdownToHtml = (markdown: string) => {
       continue
     }
 
-    // Check for table
-    if (trimmed.includes('|') && i + 1 < lines.length && lines[i + 1].includes('---')) {
-      closeList()
-      const { html: tableHtml, endIndex } = parseTable(lines, i)
-      if (tableHtml) {
-        html.push(tableHtml)
-        i = endIndex - 1
-        continue
+    // Check for table (GFM pipe table format)
+    if (trimmed.includes('|') && i + 1 < lines.length) {
+      const nextLine = lines[i + 1].trim()
+      // Separator line must start with |, contain only |, -, :, and spaces, and end with |
+      const isSeparatorLine = /^\|[\s\-:|]+\|$/.test(nextLine) && nextLine.includes('-')
+      if (isSeparatorLine) {
+        console.log('[convertMarkdownToHtml] Table detected at line', i)
+        closeList()
+        const { html: tableHtml, endIndex } = parseTable(lines, i)
+        if (tableHtml) {
+          console.log('[convertMarkdownToHtml] Table HTML added')
+          html.push(tableHtml)
+          i = endIndex - 1
+          continue
+        }
       }
     }
 
@@ -201,8 +214,10 @@ export function ContentEditor({ workPackageId, initialContent, onContentChange }
     },
     onUpdate: ({ editor }) => {
       const html = editor.getHTML()
-      onContentChange?.(html)
-      debouncedSave(html)
+      // Convert HTML back to markdown for storage
+      const markdown = htmlToMarkdown(html)
+      onContentChange?.(markdown)
+      debouncedSave(markdown)
     },
   })
 

@@ -56,6 +56,10 @@ Output as well-formatted Markdown with:
 - **Bold** for emphasis
 - - Bullet lists where appropriate
 - 1. Numbered lists for sequences
+- For tables, use GitHub Flavored Markdown pipe syntax:
+  | Column 1 | Column 2 | Column 3 |
+  |----------|----------|----------|
+  | Data 1   | Data 2   | Data 3   |
 
 Return only the document content in Markdown format. No preamble or explanation.`
 }

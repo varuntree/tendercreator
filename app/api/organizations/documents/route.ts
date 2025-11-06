@@ -13,7 +13,26 @@ async function handleGET(request: NextRequest, { user, supabase }: AuthContext) 
     const org = await getOrganizationByUserId(supabase, user.id)
     if (!org) return apiError('Organization not found', 404)
     const documents = await listOrganizationDocuments(supabase, org.id)
-    return apiSuccess(documents)
+
+    const documentsWithUrls = await Promise.all(
+      documents.map(async (doc) => {
+        const { data: signedUrlData, error: signedUrlError } =
+          await supabase.storage
+            .from('documents')
+            .createSignedUrl(doc.file_path, 3600)
+
+        if (signedUrlError) {
+          console.error('Failed to create signed URL for org document', doc.id, signedUrlError)
+        }
+
+        return {
+          ...doc,
+          download_url: signedUrlData?.signedUrl ?? null,
+        }
+      })
+    )
+
+    return apiSuccess(documentsWithUrls)
   } catch (error) {
     return apiError(error as Error)
   }

@@ -32,7 +32,7 @@ export default function ProjectDetailPage() {
   const projectId = params.id as string
 
   const [project, setProject] = useState<{id: string; name: string; client_name?: string; status?: string} | null>(null)
-  const [documents, setDocuments] = useState<{id: string; name: string; file_type: string; file_size: number; uploaded_at: string; is_primary_rft?: boolean}[]>([])
+  const [documents, setDocuments] = useState<{id: string; name: string; file_type: string; file_size: number; uploaded_at: string; is_primary_rft?: boolean; download_url?: string | null}[]>([])
   const [workPackages, setWorkPackages] = useState<WorkPackage[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -116,6 +116,25 @@ export default function ProjectDetailPage() {
       </div>
 
       <div className="space-y-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Uploaded Documents</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Review and download the files originally provided for this project.
+            </p>
+          </CardHeader>
+          <CardContent>
+            {documents.length === 0 ? (
+              <p className="text-gray-500">No documents uploaded yet</p>
+            ) : (
+              <DocumentList
+                documents={documents}
+                onDelete={project.status === 'setup' ? handleDelete : undefined}
+              />
+            )}
+          </CardContent>
+        </Card>
+
         {project.status === 'setup' && (
           <>
             <Card>
@@ -124,19 +143,6 @@ export default function ProjectDetailPage() {
               </CardHeader>
               <CardContent>
                 <FileUpload onUpload={handleUpload} />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Documents</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {documents.length === 0 ? (
-                  <p className="text-gray-500">No documents uploaded yet</p>
-                ) : (
-                  <DocumentList documents={documents} onDelete={handleDelete} />
-                )}
               </CardContent>
             </Card>
 

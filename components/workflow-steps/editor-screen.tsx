@@ -20,7 +20,7 @@ export function EditorScreen({
   onBack,
 }: EditorScreenProps) {
   return (
-    <div className="flex h-full flex-col gap-6 overflow-hidden">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-shrink-0 items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Edit Document</h2>
