@@ -64,82 +64,91 @@ export default function Sidebar() {
   return (
     <aside
       className={cn(
-        'flex h-full flex-col border-r border-gray-200 bg-white transition-all duration-300',
-        isCollapsed ? 'w-20' : 'w-64'
+        'flex h-full flex-col border-r border-[#DDE3EE] bg-white transition-all duration-300',
+        isCollapsed ? 'w-20 px-3 py-4' : 'w-72 px-6 py-6'
       )}
     >
       {/* Logo Section */}
-      <div className="flex h-16 items-center px-4">
-        {!isCollapsed && <Logo />}
-        {isCollapsed && (
-          <Link href="/projects" className="flex items-center justify-center hover:opacity-80">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600">
-              <span className="text-white font-bold text-sm">TC</span>
-            </div>
-          </Link>
-        )}
+      <div className={cn('flex w-full', isCollapsed ? 'justify-end' : 'justify-center')}>
+        <Logo collapsed={isCollapsed} />
       </div>
 
       {/* Create New Tender Button */}
-      <div className="p-4">
-        <Button
-          asChild
-          className={cn(
-            'w-full bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm transition-colors',
-            isCollapsed ? 'px-0' : 'px-4'
-          )}
-        >
-          <Link href="/projects/new" className="flex items-center justify-center gap-2">
+      <div className={cn('mt-6 w-full', isCollapsed && 'flex justify-center')}>
+        {isCollapsed ? (
+          <Link
+            href="/projects/new"
+            className="flex h-10 w-10 items-center justify-center text-[#1EB472] transition-colors hover:text-[#15895a]"
+            aria-label="Create new tender"
+          >
             <Plus className="h-5 w-5" />
-            {!isCollapsed && <span className="font-medium">Create new tender</span>}
           </Link>
-        </Button>
+        ) : (
+          <Button
+            asChild
+            variant="ghost"
+            className="w-full rounded-2xl border-2 border-[#1EB472] bg-white px-4 py-5 text-base font-semibold text-[#1A7C4F] shadow-none hover:bg-[#E7F5EE]"
+          >
+            <Link href="/projects/new" className="flex items-center justify-center gap-3">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#1EB472] text-[#1EB472]">
+                <Plus className="h-4 w-4" />
+              </span>
+              <span>Create new tender</span>
+            </Link>
+          </Button>
+        )}
       </div>
 
       {/* Navigation Items */}
-      <nav className="flex-1 space-y-1 px-3 py-2">
+      <nav className="mt-6 flex-1 space-y-1">
         {navItems.map((item) => {
           const Icon = item.icon
           const active = isActive(item)
-
           return (
             <Link
               key={item.id}
               href={item.href}
               title={isCollapsed ? item.name : undefined}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-3 text-sm transition-all duration-200',
+                'flex items-center gap-4 rounded-2xl px-4 py-3 text-base font-medium transition-all duration-200',
                 active
-                  ? 'bg-emerald-50 text-emerald-600 font-medium border-l-4 border-emerald-600 pl-2'
-                  : 'text-gray-600 hover:bg-gray-50',
-                isCollapsed && 'justify-center'
+                  ? 'bg-[#E8ECEF] text-[#151F32] shadow-inner'
+                  : 'text-[#94A3B8] hover:text-[#0F172A]',
+                isCollapsed && 'justify-center px-0'
               )}
             >
-              <Icon className="h-5 w-5 flex-shrink-0" />
-              {!isCollapsed && <span>{item.name}</span>}
+              <span
+                className={cn(
+                  'flex h-10 w-10 items-center justify-center rounded-2xl border border-transparent text-lg transition-all',
+                  active
+                    ? 'border-[#C5CFDA] bg-white text-[#1EB472]'
+                    : 'text-[#9CAFC6]'
+                )}
+              >
+                <Icon className="h-5 w-5" />
+              </span>
+              {!isCollapsed && (
+                <span className={cn(active ? 'text-[#111827]' : 'text-inherit')}>{item.name}</span>
+              )}
             </Link>
           )
         })}
       </nav>
 
       {/* Collapse Toggle Button */}
-      <div className="border-t border-gray-200 p-4">
-        <Button
-          variant="ghost"
-          size="sm"
+      <div className="mt-8 flex w-full justify-end">
+        <button
+          type="button"
           onClick={toggleCollapse}
           className={cn(
-            'w-full flex items-center justify-center text-gray-600 hover:text-emerald-600 hover:bg-gray-50',
-            isCollapsed && 'px-0'
+            'flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-[#1EB472] text-[#1EB472] transition-colors hover:bg-[#E7F5EE]'
           )}
+          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           <ChevronLeft
-            className={cn(
-              'h-5 w-5 transition-transform duration-300',
-              isCollapsed && 'rotate-180'
-            )}
+            className={cn('h-5 w-5 transition-transform duration-300', isCollapsed && 'rotate-180')}
           />
-        </Button>
+        </button>
       </div>
     </aside>
   )

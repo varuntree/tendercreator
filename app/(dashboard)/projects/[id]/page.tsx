@@ -5,7 +5,6 @@ import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { AnalysisTrigger } from '@/components/analysis-trigger'
-import { BulkExportButton } from '@/components/bulk-export-button'
 import DocumentList from '@/components/document-list'
 import { EmptyState } from '@/components/empty-state'
 import FileUpload from '@/components/file-upload'
@@ -153,22 +152,6 @@ export default function ProjectDetailPage() {
 
         {project.status === 'in_progress' && (
           <>
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-semibold">Work Packages</h2>
-                <p className="text-sm text-muted-foreground">
-                  {workPackages.filter(wp => wp.status === 'completed').length} of {workPackages.length} completed
-                </p>
-              </div>
-
-              {workPackages.filter(wp => wp.status === 'completed').length > 0 && (
-                <BulkExportButton
-                  projectId={projectId}
-                  completedCount={workPackages.filter(wp => wp.status === 'completed').length}
-                />
-              )}
-            </div>
-
             {workPackages.length === 0 ? (
               <EmptyState
                 icon={FileQuestion}
@@ -180,6 +163,7 @@ export default function ProjectDetailPage() {
                 projectId={projectId}
                 workPackages={workPackages}
                 onUpdate={loadData}
+                showBulkExport
               />
             )}
           </>

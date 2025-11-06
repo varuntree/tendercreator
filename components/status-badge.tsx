@@ -11,7 +11,7 @@ interface StatusBadgeProps {
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   const config: Record<string, { label: string; icon: React.ComponentType<{ className?: string }>; variant: 'secondary' | 'default'; className: string }> = {
     pending: {
-      label: 'Pending',
+      label: 'Not Started',
       icon: Circle,
       variant: 'secondary' as const,
       className: 'bg-gray-100 text-gray-700 hover:bg-gray-100',

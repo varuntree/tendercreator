@@ -29,6 +29,7 @@
   /* Borders */
   --dashboard-border: #E5E7EB;
   --dashboard-border-light: #D1D5DB;
+  --dashboard-border-subtle: #E0E3EA;
   --dashboard-border-dashed: #D1D5DB;
 
   /* Status colors */
@@ -126,24 +127,7 @@
 }
 
 /* Sidebar active state (green background) */
-.dashboard-layout .nav-item {
-  padding: 0.75rem 1rem;
-  border-radius: var(--dashboard-radius);
-  color: var(--dashboard-text-secondary);
-  transition: all 200ms ease;
-}
 
-.dashboard-layout .nav-item:hover {
-  background-color: var(--dashboard-bg-gray-50);
-}
-
-.dashboard-layout .nav-item-active,
-.dashboard-layout .nav-item[data-active="true"] {
-  background-color: var(--dashboard-primary-light);
-  color: var(--dashboard-primary);
-  border-left: 3px solid var(--dashboard-primary);
-  font-weight: 500;
-}
 
 /* Progress indicator (5-step from ui2.png) */
 .dashboard-layout .progress-step {

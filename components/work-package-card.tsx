@@ -92,10 +92,10 @@ export function WorkPackageCard({
               disabled={isUpdating}
             >
               <SelectTrigger className="w-[140px]">
-                <SelectValue />
+                <SelectValue placeholder="Not Started" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="not_started">Not Started</SelectItem>
+                <SelectItem value="pending">Not Started</SelectItem>
                 <SelectItem value="in_progress">In Progress</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
               </SelectContent>

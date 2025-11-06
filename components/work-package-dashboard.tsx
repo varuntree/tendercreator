@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { AddDocumentDialog } from '@/components/add-document-dialog'
+import { BulkExportButton } from '@/components/bulk-export-button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { WorkPackageCard } from '@/components/work-package-card'
 
@@ -26,12 +27,14 @@ interface WorkPackageDashboardProps {
   projectId: string
   workPackages: WorkPackage[]
   onUpdate: () => void
+  showBulkExport?: boolean
 }
 
 export function WorkPackageDashboard({
   projectId,
   workPackages,
   onUpdate,
+  showBulkExport = false,
 }: WorkPackageDashboardProps) {
   const router = useRouter()
 
@@ -116,7 +119,15 @@ export function WorkPackageDashboard({
             {completedCount} of {totalCount} completed
           </p>
         </div>
-        <AddDocumentDialog projectId={projectId} onDocumentAdded={onUpdate} />
+        <div className="flex items-center gap-3">
+          <AddDocumentDialog projectId={projectId} onDocumentAdded={onUpdate} />
+          {showBulkExport && completedCount > 0 && (
+            <BulkExportButton
+              projectId={projectId}
+              completedCount={completedCount}
+            />
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
