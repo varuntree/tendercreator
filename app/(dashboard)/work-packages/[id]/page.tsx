@@ -105,15 +105,15 @@ export default function WorkPackagePage({ params }: WorkPackagePageProps) {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-1 flex-col">
-      <div className="mx-auto flex max-w-5xl flex-1 flex-col py-8">
+    <div className="flex h-screen w-full flex-1 flex-col overflow-hidden">
+      <div className="mx-auto flex h-full max-w-5xl flex-1 flex-col py-8">
       <WorkflowTabs
         currentTab={currentTab}
         onTabChange={(tab: string) => setCurrentTab(tab as typeof currentTab)}
         completedSteps={getCompletedSteps()}
-        className="flex flex-1 flex-col"
+        className="flex flex-1 flex-col min-h-0"
       >
-        <TabsContent value="requirements" className="flex flex-1 flex-col overflow-auto">
+        <TabsContent value="requirements" className="flex flex-1 flex-col min-h-0 overflow-auto">
           <RequirementsView
             workPackage={workPackage}
             projectId={project.id}
@@ -121,7 +121,7 @@ export default function WorkPackagePage({ params }: WorkPackagePageProps) {
           />
         </TabsContent>
 
-        <TabsContent value="strategy" className="flex flex-1 flex-col overflow-auto">
+        <TabsContent value="strategy" className="flex flex-1 flex-col min-h-0 overflow-auto">
           <StrategyScreen
             workPackageId={workPackageId}
             initialWinThemes={content?.win_themes as string[] | undefined}
@@ -130,7 +130,7 @@ export default function WorkPackagePage({ params }: WorkPackagePageProps) {
           />
         </TabsContent>
 
-        <TabsContent value="generate" className="flex flex-1 flex-col overflow-auto">
+        <TabsContent value="generate" className="flex flex-1 flex-col min-h-0 overflow-auto">
           <GenerationScreen
             workPackageId={workPackageId}
             workPackage={workPackage}
@@ -140,7 +140,7 @@ export default function WorkPackagePage({ params }: WorkPackagePageProps) {
           />
         </TabsContent>
 
-        <TabsContent value="edit" className="flex flex-1 flex-col overflow-auto">
+        <TabsContent value="edit" className="flex flex-1 flex-col min-h-0">
           <EditorScreen
             workPackageId={workPackageId}
             initialContent={(content?.content as string) || ''}
@@ -149,7 +149,7 @@ export default function WorkPackagePage({ params }: WorkPackagePageProps) {
           />
         </TabsContent>
 
-        <TabsContent value="export" className="flex flex-1 flex-col overflow-auto">
+        <TabsContent value="export" className="flex flex-1 flex-col min-h-0 overflow-auto">
           <ExportScreen
             workPackageId={workPackageId}
             workPackage={workPackage}

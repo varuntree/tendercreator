@@ -18,6 +18,11 @@ import { EditorToolbar } from './editor-toolbar'
 
 const HTML_DETECTION_REGEX = /<\/?[a-z][\s\S]*>/i
 
+const unescapeMarkdown = (value: string) =>
+  value
+    // Remove markdown escape sequences (backslash before special chars)
+    .replace(/\\([\\`*_{}[\]()#+\-.!$])/g, '$1')
+
 const escapeHtml = (value: string) =>
   value
     .replace(/&/g, '&amp;')
@@ -66,14 +71,16 @@ const parseTable = (lines: string[], startIndex: number): { html: string; endInd
   // Build HTML
   let html = '<table><thead><tr>'
   headerCells.forEach(cell => {
-    html += `<th>${applyInlineFormatting(escapeHtml(cell))}</th>`
+    const unescaped = unescapeMarkdown(cell)
+    html += `<th>${applyInlineFormatting(escapeHtml(unescaped))}</th>`
   })
   html += '</tr></thead><tbody>'
 
   bodyRows.forEach(row => {
     html += '<tr>'
     row.forEach(cell => {
-      html += `<td>${applyInlineFormatting(escapeHtml(cell))}</td>`
+      const unescaped = unescapeMarkdown(cell)
+      html += `<td>${applyInlineFormatting(escapeHtml(unescaped))}</td>`
     })
     html += '</tr>'
   })
@@ -127,7 +134,8 @@ const convertMarkdownToHtml = (markdown: string) => {
     if (headingMatch) {
       closeList()
       const level = Math.min(headingMatch[1].length, 3)
-      const content = applyInlineFormatting(escapeHtml(headingMatch[2].trim()))
+      const unescaped = unescapeMarkdown(headingMatch[2].trim())
+      const content = applyInlineFormatting(escapeHtml(unescaped))
       html.push(`<h${level}>${content}</h${level}>`)
       continue
     }
@@ -138,7 +146,8 @@ const convertMarkdownToHtml = (markdown: string) => {
         listType = 'ul'
         html.push('<ul>')
       }
-      const item = applyInlineFormatting(escapeHtml(trimmed.replace(/^[-*+]\s+/, '')))
+      const unescaped = unescapeMarkdown(trimmed.replace(/^[-*+]\s+/, ''))
+      const item = applyInlineFormatting(escapeHtml(unescaped))
       html.push(`<li>${item}</li>`)
       continue
     }
@@ -149,13 +158,15 @@ const convertMarkdownToHtml = (markdown: string) => {
         listType = 'ol'
         html.push('<ol>')
       }
-      const item = applyInlineFormatting(escapeHtml(trimmed.replace(/^\d+\.\s+/, '')))
+      const unescaped = unescapeMarkdown(trimmed.replace(/^\d+\.\s+/, ''))
+      const item = applyInlineFormatting(escapeHtml(unescaped))
       html.push(`<li>${item}</li>`)
       continue
     }
 
     closeList()
-    const paragraph = applyInlineFormatting(escapeHtml(trimmed))
+    const unescaped = unescapeMarkdown(trimmed)
+    const paragraph = applyInlineFormatting(escapeHtml(unescaped))
     html.push(`<p>${paragraph}</p>`)
   }
 

@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { AddDocumentDialog } from '@/components/add-document-dialog'
 import { BulkExportButton } from '@/components/bulk-export-button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { WorkPackageCard } from '@/components/work-package-card'
+import { WorkPackageTable } from '@/components/work-package-table'
 
 interface WorkPackage {
   id: string
@@ -130,17 +130,12 @@ export function WorkPackageDashboard({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {workPackages.map((workPackage) => (
-          <WorkPackageCard
-            key={workPackage.id}
-            workPackage={workPackage}
-            onAssignmentChange={handleAssignmentChange}
-            onStatusChange={handleStatusChange}
-            onOpen={handleOpen}
-          />
-        ))}
-      </div>
+      <WorkPackageTable
+        workPackages={workPackages}
+        onAssignmentChange={handleAssignmentChange}
+        onStatusChange={handleStatusChange}
+        onOpen={handleOpen}
+      />
     </div>
   )
 }

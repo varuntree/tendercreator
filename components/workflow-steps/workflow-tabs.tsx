@@ -37,9 +37,9 @@ export function WorkflowTabs({
     <Tabs
       value={currentTab}
       onValueChange={onTabChange}
-      className={cn('w-full', className)}
+      className={cn('w-full flex flex-col', className)}
     >
-      <TabsList className="w-full">
+      <TabsList className="w-full flex-shrink-0">
         {tabs.map(tab => (
           <TabsTrigger
             key={tab.id}

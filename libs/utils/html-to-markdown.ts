@@ -25,6 +25,10 @@ export function htmlToMarkdown(html: string): string {
   // Add GitHub Flavored Markdown support (tables, strikethrough, task lists)
   turndownService.use(gfm)
 
+  // Override escape function to prevent escaping special characters like $
+  // This prevents \$100 in output - we want $100
+  turndownService.escape = (text: string) => text
+
   // Custom rule to preserve code blocks
   turndownService.addRule('codeBlock', {
     filter: ['pre'],

@@ -5,9 +5,9 @@ import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { AnalysisTrigger } from '@/components/analysis-trigger'
-import DocumentList from '@/components/document-list'
 import { EmptyState } from '@/components/empty-state'
 import FileUpload from '@/components/file-upload'
+import SimpleDocumentList from '@/components/simple-document-list'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { WorkPackageDashboard } from '@/components/work-package-dashboard'
@@ -124,14 +124,7 @@ export default function ProjectDetailPage() {
             </p>
           </CardHeader>
           <CardContent>
-            {documents.length === 0 ? (
-              <p className="text-gray-500">No documents uploaded yet</p>
-            ) : (
-              <DocumentList
-                documents={documents}
-                onDelete={project.status === 'setup' ? handleDelete : undefined}
-              />
-            )}
+            <SimpleDocumentList documents={documents} />
           </CardContent>
         </Card>
 

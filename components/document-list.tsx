@@ -18,7 +18,6 @@ interface Document {
   file_size: number
   uploaded_at: string
   is_primary_rft?: boolean
-  download_url?: string | null
 }
 
 interface DocumentListProps {
@@ -57,36 +56,15 @@ export default function DocumentList({ documents, onDelete }: DocumentListProps)
             <TableCell>{formatFileSize(doc.file_size)}</TableCell>
             <TableCell>{new Date(doc.uploaded_at).toLocaleDateString()}</TableCell>
             <TableCell>
-              <div className="flex flex-wrap gap-2">
-                {doc.download_url ? (
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="sm"
-                  >
-                    <a
-                      href={doc.download_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Download
-                    </a>
-                  </Button>
-                ) : (
-                  <Button variant="outline" size="sm" disabled>
-                    Download
-                  </Button>
-                )}
-                {onDelete && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => onDelete(doc.id)}
-                  >
-                    Delete
-                  </Button>
-                )}
-              </div>
+              {onDelete && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => onDelete(doc.id)}
+                >
+                  Delete
+                </Button>
+              )}
             </TableCell>
           </TableRow>
         ))}
