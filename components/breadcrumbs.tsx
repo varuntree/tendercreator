@@ -1,0 +1,30 @@
+'use client'
+
+import { Home } from 'lucide-react'
+import { usePathname } from 'next/navigation'
+
+// Route to display name mapping
+const getPageName = (pathname: string): string => {
+  if (pathname === '/projects' || pathname === '/') return 'Home'
+  if (pathname.startsWith('/projects/new')) return 'Create New Tender'
+  if (pathname.startsWith('/projects/')) return 'Project'
+  if (pathname === '/settings') return 'Settings'
+  if (pathname === '/settings/documents') return 'Documents'
+  if (pathname === '/settings/team') return 'Team'
+  if (pathname === '/settings/billing') return 'Billing'
+  if (pathname === '/resources') return 'Resources'
+  if (pathname === '/docs') return 'Documentation'
+  return 'Home'
+}
+
+export default function Breadcrumbs() {
+  const pathname = usePathname()
+  const pageName = getPageName(pathname)
+
+  return (
+    <div className="flex items-center gap-2 text-gray-600 mb-6">
+      <Home className="h-5 w-5" />
+      <span className="text-sm font-medium">{pageName}</span>
+    </div>
+  )
+}

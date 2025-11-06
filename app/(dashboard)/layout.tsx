@@ -2,8 +2,9 @@ import '@/app/(dashboard)/globals-dashboard.css'
 
 import { redirect } from 'next/navigation'
 
-import Header from '@/components/header'
-import Nav from '@/components/nav'
+import Breadcrumbs from '@/components/breadcrumbs'
+import Navbar from '@/components/navbar'
+import Sidebar from '@/components/sidebar'
 import { createClient } from '@/libs/supabase/server'
 
 export default async function DashboardLayout({
@@ -22,11 +23,17 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="dashboard-layout flex h-screen flex-col">
-      <Header />
-      <div className="flex flex-1 overflow-hidden">
-        <Nav />
-        <main className="flex-1 overflow-y-auto p-8">{children}</main>
+    <div className="flex h-screen">
+      {/* Sidebar - Full Height */}
+      <Sidebar />
+
+      {/* Main Area - Navbar + Content */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <Navbar />
+        <main className="flex-1 overflow-y-auto bg-gray-50 p-8">
+          <Breadcrumbs />
+          {children}
+        </main>
       </div>
     </div>
   )
