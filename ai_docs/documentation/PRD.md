@@ -477,6 +477,17 @@ Status cards:
 - ◐ In Progress (yellow)
 - ● Completed (green)
 
+**3.4 Team Management Screen (UI Only)**
+- `/settings/team` route must mirror TenderCreator reference (`ui1.png`)
+- Hero section with Team icon tile, page title, CTA buttons (Export roster, Invite team member)
+- Search input + role filter operate on mocked roster data (UI state only)
+- Team member table:
+  - Avatar initials, name, email, joined date
+  - Role dropdown (Admin, Company Admin, Company User) with no backend writes
+  - Status badge (Active, Pending Invite) and overflow menu (Resend, Update, Remove)
+  - Empty-state copy when filters match zero members
+- Organisation roles panel showing three cards (Admin, Company Admin, Company User) with badges + highlights
+
 **Success Criteria:**
 ✓ Can "assign" documents (UI only)
 ✓ Dashboard shows statuses
