@@ -10,6 +10,7 @@ interface LogoProps {
 }
 
 export default function Logo({ collapsed = false }: LogoProps) {
+  const src = collapsed ? '/images/logo-icon.png' : '/images/logo.png'
   return (
     <Link
       href="/projects"
@@ -20,16 +21,11 @@ export default function Logo({ collapsed = false }: LogoProps) {
       aria-label="Tender Creator"
     >
       <Image
-        src="/images/logo.png"
+        src={src}
         alt="Tender Creator Logo"
         fill
         priority
-        className={cn(
-          'object-contain transition-all duration-300',
-          collapsed
-            ? 'object-left origin-left scale-[1.5]'
-            : 'object-center'
-        )}
+        className="object-contain object-center transition-all duration-300"
       />
     </Link>
   )
