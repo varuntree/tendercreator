@@ -1,8 +1,22 @@
-import { GoogleAIFileManager } from '@google/generative-ai/server'
+import mammoth from 'mammoth'
+import { PDFParse } from 'pdf-parse'
 
-import { model } from './client'
-
-const fileManager = new GoogleAIFileManager(process.env.GEMINI_API_KEY!)
+/**
+ * Supported document MIME types for text extraction
+ *
+ * Why these formats:
+ * - PDF: Standard tender document format, full text extraction
+ * - DOCX: Common Word format, text extraction via mammoth
+ * - text/plain: Simple text files, direct buffer read
+ *
+ * Note: We extract text directly from file buffers, no external API calls.
+ * Extracted text stored in DB, later used as context for Gemini AI operations.
+ */
+const SUPPORTED_MIME_TYPES = [
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
+  'text/plain',
+] as const
 
 export async function extractTextFromFile(
   fileBuffer: Buffer,
@@ -10,46 +24,53 @@ export async function extractTextFromFile(
   mimeType: string
 ): Promise<string> {
   try {
-    // For text files, just read directly
-    if (mimeType === 'text/plain') {
-      return fileBuffer.toString('utf-8')
+    // Validate supported MIME type
+    if (!SUPPORTED_MIME_TYPES.includes(mimeType as any)) {
+      throw new Error(
+        `Unsupported file format: ${mimeType}. Supported formats: PDF, DOCX, TXT`
+      )
     }
 
-    // For other file types, upload file to Gemini
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const uploadResult = await fileManager.uploadFile(fileBuffer as any, {
-      mimeType,
-      displayName: fileName,
-    })
+    // Extract text based on file type
+    let extractedText = ''
+    switch (mimeType) {
+      case 'text/plain':
+        extractedText = fileBuffer.toString('utf-8')
+        break
 
-    try {
-      // Extract text with prompt
-      const result = await model.generateContent([
-        {
-          fileData: {
-            mimeType: uploadResult.file.mimeType,
-            fileUri: uploadResult.file.uri,
-          },
-        },
-        {
-          text: `Extract all text content from this document. Return only the plain text, preserving structure and paragraphs. Do not add any commentary or explanation.`,
-        },
-      ])
-
-      const response = await result.response
-      const text = response.text()
-
-      return text
-    } finally {
-      // Always clean up uploaded file
-      try {
-        await fileManager.deleteFile(uploadResult.file.name)
-      } catch (cleanupError) {
-        console.error('Failed to delete uploaded file:', cleanupError)
+      case 'application/pdf': {
+        const parser = new PDFParse({ data: fileBuffer })
+        try {
+          const result = await parser.getText()
+          extractedText = result.text
+        } finally {
+          await parser.destroy()
+        }
+        break
       }
+
+      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': {
+        const result = await mammoth.extractRawText({ buffer: fileBuffer })
+        extractedText = result.value
+        break
+      }
+
+      default:
+        throw new Error(`Unsupported MIME type: ${mimeType}`)
     }
+
+    // Log successful extraction
+    console.log(`[Extraction] ${fileName} (${mimeType}): ${extractedText.length} chars extracted`)
+    return extractedText
   } catch (error) {
     console.error('Text extraction error:', error)
+
+    // Re-throw validation errors
+    if (error instanceof Error && error.message.includes('Unsupported')) {
+      throw error
+    }
+
+    // Return empty string for extraction failures (corrupted files, etc.)
     return ''
   }
 }
