@@ -69,6 +69,7 @@ export async function createWorkPackageContent(
       work_package_id: data.work_package_id,
       win_themes: data.win_themes || [],
       key_messages: data.key_messages || [],
+      bid_analysis: data.bid_analysis || null,
       content: data.content || '',
       content_version: 1,
     })
@@ -166,19 +167,36 @@ export async function saveWinThemes(
 
 /**
  * Save generated content for work package
+ * Uses upsert pattern to handle missing content records
  */
 export async function saveGeneratedContent(
   supabase: SupabaseClient,
   workPackageId: string,
   content: string
 ): Promise<WorkPackageContent> {
-  const existing = await getWorkPackageContent(supabase, workPackageId)
-
-  if (!existing) {
-    throw new Error('Work package content not found - win themes must be generated first')
+  if (!workPackageId) {
+    throw new Error('Work package ID is required')
   }
 
-  return await updateWorkPackageContent(supabase, existing.id, { content })
+  if (!content) {
+    throw new Error('Content is required')
+  }
+
+  // Check if content record exists
+  const existing = await getWorkPackageContent(supabase, workPackageId)
+
+  if (existing) {
+    // Update existing
+    console.log(`[saveGeneratedContent] Updating existing content record ${existing.id}`)
+    return await updateWorkPackageContent(supabase, existing.id, { content })
+  } else {
+    // Create new - this allows content generation to work even if strategy wasn't run first
+    console.log(`[saveGeneratedContent] Creating new content record for work package ${workPackageId}`)
+    return await createWorkPackageContent(supabase, {
+      work_package_id: workPackageId,
+      content,
+    })
+  }
 }
 
 /**
@@ -231,6 +249,46 @@ export async function saveBidAnalysis(
     return await createWorkPackageContent(supabase, {
       work_package_id: workPackageId,
       bid_analysis: analysis,
+    })
+  }
+}
+
+/**
+ * Save combined generation results (bid analysis + win themes + content) atomically
+ * Used by combined strategy and batch generation endpoints
+ */
+export async function saveCombinedGeneration(
+  supabase: SupabaseClient,
+  workPackageId: string,
+  data: {
+    bid_analysis?: BidAnalysis
+    win_themes?: string[]
+    content?: string
+  }
+): Promise<WorkPackageContent> {
+  if (!workPackageId) {
+    throw new Error('Work package ID is required')
+  }
+
+  // Check if content record exists
+  const existing = await getWorkPackageContent(supabase, workPackageId)
+
+  // Prepare update data
+  const updateData: UpdateWorkPackageContentData = {}
+  if (data.bid_analysis) updateData.bid_analysis = data.bid_analysis
+  if (data.win_themes) updateData.win_themes = data.win_themes
+  if (data.content) updateData.content = data.content
+
+  if (existing) {
+    // Update existing - atomic operation
+    console.log(`[saveCombinedGeneration] Updating content record ${existing.id}`)
+    return await updateWorkPackageContent(supabase, existing.id, updateData)
+  } else {
+    // Create new - atomic operation
+    console.log(`[saveCombinedGeneration] Creating new content record for work package ${workPackageId}`)
+    return await createWorkPackageContent(supabase, {
+      work_package_id: workPackageId,
+      ...updateData,
     })
   }
 }

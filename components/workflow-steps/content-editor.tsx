@@ -19,7 +19,7 @@ import { toast } from 'sonner'
 import { htmlToMarkdown } from '@/libs/utils/html-to-markdown'
 
 import { EditorToolbar } from './editor-toolbar'
-import { AiSelectionHighlight } from './extensions/ai-selection-highlight'
+import { AiSelectionHighlight, getAiSelectionRange } from './extensions/ai-selection-highlight'
 
 const HTML_DETECTION_REGEX = /<\/?[a-z][\s\S]*>/i
 type BubbleShouldShowProps = Parameters<NonNullable<BubbleMenuProps['shouldShow']>>[0]
@@ -204,8 +204,10 @@ export function ContentEditor({ workPackageId, initialContent, onContentChange }
   const [aiInstruction, setAiInstruction] = useState('')
   const [aiErrorMessage, setAiErrorMessage] = useState<string | null>(null)
   const [isAiProcessing, setIsAiProcessing] = useState(false)
-  const selectionRangeRef = useRef<{ from: number; to: number }>({ from: 0, to: 0 })
+  const [isGeneratingContent, setIsGeneratingContent] = useState(false)
   const previousSelectionRef = useRef<string>('')
+  const instructionFormRef = useRef<HTMLFormElement | null>(null)
+  const streamingContentRef = useRef('')
   const resolvedContent = useMemo(() => normalizeContent(initialContent || ''), [initialContent])
 
   const editor = useEditor({
@@ -253,28 +255,27 @@ export function ContentEditor({ workPackageId, initialContent, onContentChange }
     const handleSelectionUpdate = ({ editor: instance }: { editor: TiptapEditor }) => {
       const { from, to } = instance.state.selection
       const isCollapsed = from === to
-      const previousRange = selectionRangeRef.current
 
       if (isCollapsed) {
-        // Preserve the previous selection highlight when the cursor collapses,
-        // such as when the user clicks into the floating AI input.
-        if (previousRange.to > previousRange.from) {
-          instance.commands.setAiSelectionHighlight(previousRange.from, previousRange.to)
-        } else {
-          setSelectionText('')
-          instance.commands.clearAiSelectionHighlight()
+        const focusInsideInstruction =
+          instructionFormRef.current?.contains(document.activeElement) ?? false
+        const persisted = getAiSelectionRange(instance.state)
+        if (focusInsideInstruction && persisted && persisted.to > persisted.from) {
+          return
         }
+
+        setSelectionText('')
+        instance.commands.clearAiSelectionHighlight()
         return
       }
 
       const text = instance.state.doc.textBetween(from, to, '\n').trim()
 
-      selectionRangeRef.current = { from, to }
-      setSelectionText(text)
-
       if (text) {
+        setSelectionText(text)
         instance.commands.setAiSelectionHighlight(from, to)
       } else {
+        setSelectionText('')
         instance.commands.clearAiSelectionHighlight()
       }
     }
@@ -291,7 +292,6 @@ export function ContentEditor({ workPackageId, initialContent, onContentChange }
       previousSelectionRef.current = ''
       setAiInstruction('')
       setAiErrorMessage(null)
-      selectionRangeRef.current = { from: 0, to: 0 }
       editor?.commands.clearAiSelectionHighlight()
       return
     }
@@ -308,15 +308,56 @@ export function ContentEditor({ workPackageId, initialContent, onContentChange }
       if (isAiProcessing) {
         return true
       }
+      if (!selectionText) {
+        return false
+      }
       const { from, to } = state.selection
       if (from !== to) {
         return true
       }
-      const persisted = selectionRangeRef.current
-      return persisted.to > persisted.from
+      const persisted = getAiSelectionRange(state)
+      return Boolean(persisted && persisted.to > persisted.from)
     },
-    [isAiProcessing]
+    [isAiProcessing, selectionText]
   )
+
+  const bubbleMenuTippyOptions = useMemo(() => {
+    if (!editor) {
+      return {
+        placement: 'bottom-start' as const,
+        offset: [0, 16] as const,
+        interactive: true,
+      }
+    }
+
+    const getReferenceClientRect = () => {
+      const persisted = getAiSelectionRange(editor.state)
+      const range =
+        persisted && persisted.to > persisted.from
+          ? persisted
+          : editor.state.selection
+
+      try {
+        const start = editor.view.coordsAtPos(range.from)
+        const end = editor.view.coordsAtPos(range.to)
+        const top = Math.min(start.top, end.top)
+        const bottom = Math.max(start.bottom, end.bottom)
+        const left = Math.min(start.left, end.left)
+        const right = Math.max(start.right, end.right)
+        return new DOMRect(left, top, Math.max(right - left, 1), Math.max(bottom - top, 1))
+      } catch {
+        return editor.view.dom.getBoundingClientRect()
+      }
+    }
+
+    return {
+      placement: 'bottom-start' as const,
+      offset: [0, 16] as const,
+      interactive: true,
+      duration: 0,
+      getReferenceClientRect,
+    }
+  }, [editor])
 
   const debouncedSave = useMemo(
     () =>
@@ -348,6 +389,123 @@ export function ContentEditor({ workPackageId, initialContent, onContentChange }
     }
   }, [editor, resolvedContent])
 
+  // Listen for streaming content generation
+  useEffect(() => {
+    if (!editor || initialContent) return // Only stream if no initial content
+
+    const controller = new AbortController()
+    const decoder = new TextDecoder()
+    let buffer = ''
+    let isStreamActive = true
+
+    const processEvent = (rawEvent: string) => {
+      const trimmed = rawEvent.trim()
+      if (!trimmed) return
+
+      const lines = trimmed.split('\n')
+      let eventType = 'message'
+      const dataLines: string[] = []
+
+      for (const line of lines) {
+        if (line.startsWith('event:')) {
+          eventType = line.slice(6).trim() || 'message'
+        } else if (line.startsWith('data:')) {
+          dataLines.push(line.slice(5).trim())
+        }
+      }
+
+      const dataString = dataLines.join('\n')
+      if (!dataString) {
+        return
+      }
+
+      try {
+        const payload = JSON.parse(dataString)
+        if (eventType === 'chunk') {
+          const chunk = payload.text || ''
+          if (chunk) {
+            streamingContentRef.current += chunk
+            const html = convertMarkdownToHtml(streamingContentRef.current)
+            if (html) {
+              editor.commands.setContent(html, { emitUpdate: false })
+            }
+          }
+        } else if (eventType === 'done') {
+          const fullContent = payload.fullContent || streamingContentRef.current
+          if (fullContent) {
+            const html = convertMarkdownToHtml(fullContent)
+            editor.commands.setContent(html)
+          }
+          toast.success('Content generated successfully')
+          setIsGeneratingContent(false)
+          streamingContentRef.current = ''
+          isStreamActive = false
+        } else if (eventType === 'error') {
+          console.error('[Streaming] Server error:', payload.error)
+          toast.error(payload.error || 'Streaming failed')
+          setIsGeneratingContent(false)
+          streamingContentRef.current = ''
+          isStreamActive = false
+        }
+      } catch (error) {
+        console.error('[Streaming] Failed to parse event payload:', error)
+      }
+    }
+
+    const processBuffer = () => {
+      let boundary = buffer.indexOf('\n\n')
+      while (boundary !== -1) {
+        const rawEvent = buffer.slice(0, boundary)
+        buffer = buffer.slice(boundary + 2)
+        processEvent(rawEvent)
+        boundary = buffer.indexOf('\n\n')
+      }
+    }
+
+    const streamContent = async () => {
+      try {
+        setIsGeneratingContent(true)
+        streamingContentRef.current = ''
+        const response = await fetch(`/api/work-packages/${workPackageId}/generate-content`, {
+          method: 'POST',
+          headers: { Accept: 'text/event-stream' },
+          signal: controller.signal,
+        })
+
+        if (!response.ok || !response.body) {
+          throw new Error('Failed to start content stream')
+        }
+
+        const reader = response.body.getReader()
+
+        while (isStreamActive) {
+          const { value, done } = await reader.read()
+          if (done) {
+            break
+          }
+
+          buffer += decoder.decode(value, { stream: true })
+          processBuffer()
+        }
+      } catch (error) {
+        if ((error as DOMException).name === 'AbortError') {
+          return
+        }
+        console.error('[Streaming] Connection error', error)
+        toast.error('Failed to stream generated content')
+        setIsGeneratingContent(false)
+        streamingContentRef.current = ''
+      }
+    }
+
+    streamContent()
+
+    return () => {
+      isStreamActive = false
+      controller.abort()
+    }
+  }, [editor, workPackageId, initialContent])
+
   useEffect(() => {
     return () => {
       debouncedSave.cancel()
@@ -366,11 +524,12 @@ export function ContentEditor({ workPackageId, initialContent, onContentChange }
       return
     }
 
-    const { from, to } = selectionRangeRef.current
-    if (to <= from) {
+    const range = getPersistedRange()
+    if (!range || range.to <= range.from) {
       setAiErrorMessage('Highlight the content you want to change.')
       return
     }
+    const { from, to } = range
 
     const latestSelected = editor.state.doc.textBetween(from, to, '\n').trim()
     if (!latestSelected) {
@@ -445,6 +604,12 @@ export function ContentEditor({ workPackageId, initialContent, onContentChange }
 
   return (
     <div className="flex flex-1 min-h-0 flex-col space-y-2">
+      {isGeneratingContent && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-lg border border-primary/20">
+          <Loader2 className="size-4 animate-spin" />
+          <span className="text-sm font-medium">Generating content... Content will appear below as it&apos;s generated.</span>
+        </div>
+      )}
       <div className="flex flex-shrink-0 items-center justify-between">
         <EditorToolbar editor={editor} />
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -459,16 +624,21 @@ export function ContentEditor({ workPackageId, initialContent, onContentChange }
           editor={editor}
           shouldShow={bubbleMenuShouldShow}
           appendTo={() => document.body}
-          options={{
-            placement: 'bottom-start',
-            offset: 20,
-          }}
+          tippyOptions={bubbleMenuTippyOptions}
           className="pointer-events-auto z-[120] flex justify-center"
         >
           <form
+            ref={instructionFormRef}
             onSubmit={handleSelectionInstruction}
+            onPointerDownCapture={event => event.stopPropagation()}
+            onKeyDownCapture={event => event.stopPropagation()}
             className="w-[520px] max-w-[min(520px,calc(100vw-64px))]"
           >
+            {selectionText ? (
+              <p className="mb-2 text-xs font-medium text-muted-foreground line-clamp-2">
+                Editing: <span className="text-foreground">{selectionText}</span>
+              </p>
+            ) : null}
             <div className="flex items-center gap-3 rounded-[24px] border-2 border-[#10B981] bg-white px-5 py-4 shadow-[0_20px_32px_rgba(16,185,129,0.18)] dark:border-[#14A66F] dark:bg-slate-900 dark:shadow-[0_20px_36px_rgba(20,166,111,0.22)]">
               <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-[#10B981]/10 text-[#047857] dark:bg-[#14A66F]/20 dark:text-[#6EE7B7]">
                 <PenLine className="size-5" strokeWidth={2} />

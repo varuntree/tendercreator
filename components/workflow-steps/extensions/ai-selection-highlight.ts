@@ -2,7 +2,7 @@ import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 
-const pluginKey = new PluginKey('aiSelectionHighlight')
+export const aiSelectionPluginKey = new PluginKey('aiSelectionHighlight')
 
 interface HighlightRange {
   from: number
@@ -18,12 +18,20 @@ declare module '@tiptap/core' {
   }
 }
 
+export type AiSelectionRange = HighlightRange | null
+
 export const AiSelectionHighlight = Extension.create<{ className: string }>({
   name: 'aiSelectionHighlight',
 
   addOptions() {
     return {
       className: 'ai-selection-highlight',
+    }
+  },
+
+  addStorage() {
+    return {
+      range: null as AiSelectionRange,
     }
   },
 
@@ -36,7 +44,7 @@ export const AiSelectionHighlight = Extension.create<{ className: string }>({
             const clampedFrom = Math.max(0, Math.min(from, state.doc.content.size))
             const clampedTo = Math.max(clampedFrom, Math.min(to, state.doc.content.size))
             dispatch(
-              tr.setMeta(pluginKey, {
+              tr.setMeta(aiSelectionPluginKey, {
                 type: 'set',
                 range: { from: clampedFrom, to: clampedTo },
               })
@@ -49,7 +57,7 @@ export const AiSelectionHighlight = Extension.create<{ className: string }>({
         ({ tr, dispatch }) => {
           if (dispatch) {
             dispatch(
-              tr.setMeta(pluginKey, {
+              tr.setMeta(aiSelectionPluginKey, {
                 type: 'clear',
               })
             )
@@ -61,23 +69,26 @@ export const AiSelectionHighlight = Extension.create<{ className: string }>({
 
   addProseMirrorPlugins() {
     const { className } = this.options
+    const storage = this.storage
 
     return [
       new Plugin<HighlightRange | null>({
-        key: pluginKey,
+        key: aiSelectionPluginKey,
         state: {
           init: () => null,
-          apply(tr, value) {
-            const meta = tr.getMeta(pluginKey) as
+          apply(tr, value, _oldState, newState) {
+            const meta = tr.getMeta(aiSelectionPluginKey) as
               | { type: 'set'; range: HighlightRange }
               | { type: 'clear' }
               | undefined
 
             if (meta?.type === 'set') {
+              storage.range = meta.range
               return meta.range
             }
 
             if (meta?.type === 'clear') {
+              storage.range = null
               return null
             }
 
@@ -85,21 +96,22 @@ export const AiSelectionHighlight = Extension.create<{ className: string }>({
               const mappedFrom = tr.mapping.map(value.from)
               const mappedTo = tr.mapping.map(value.to)
               if (mappedFrom === mappedTo) {
+                storage.range = null
                 return null
               }
-              return { from: mappedFrom, to: mappedTo }
+              const mappedRange = { from: mappedFrom, to: mappedTo }
+              storage.range = mappedRange
+              return mappedRange
             }
 
-            if (!meta && tr.selectionSet) {
-              return null
-            }
-
+            storage.range =
+              (aiSelectionPluginKey.getState(newState) as HighlightRange | null) ?? null
             return value
           },
         },
         props: {
           decorations(state) {
-            const range = pluginKey.getState(state) as HighlightRange | null
+            const range = aiSelectionPluginKey.getState(state) as HighlightRange | null
             if (!range) {
               return null
             }
@@ -116,3 +128,7 @@ export const AiSelectionHighlight = Extension.create<{ className: string }>({
     ]
   },
 })
+
+export const getAiSelectionRange = (state: Parameters<Plugin['props']['decorations']>[0]) => {
+  return (aiSelectionPluginKey.getState(state) as HighlightRange | null) ?? null
+}

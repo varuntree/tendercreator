@@ -64,26 +64,29 @@ Current tender tools (TenderCreator.ai, AutogenAI) only generate **one document*
 ### Tech Stack (Locked In)
 - **Frontend:** Next.js 14, shadcn/ui, Tailwind CSS, TipTap (editor)
 - **Backend:** Supabase (PostgreSQL + Storage + Auth)
-- **AI:** Gemini 2.5 Flash ONLY (everywhere)
-- **No RAG, no vector DB** - dump all context (1M token window)
+- **AI:** Gemini 2.0 Flash ONLY (everywhere)
+- **No RAG, no vector DB** - dump all context with smart batching (64K token limit)
 - **Deployment:** Vercel
 
 ### AI Strategy
-- **Gemini 2.5 Flash everywhere:**
+- **Gemini 2.0 Flash everywhere:**
   - Document identification
-  - Content generation
+  - Content generation (with streaming support)
   - Editing assistance
-  - Win themes
-  - Strategy
+  - Win themes + bid analysis (combined in single request)
+  - Batch generation (2-3 docs per API call)
 - **Why Gemini:**
-  - 1M token context (can dump all docs)
+  - 64K token context (sufficient for typical RFT + org docs)
   - Free tier (cost-effective for MVP)
   - Simple (no RAG complexity)
   - Fast enough for demo
+  - Streaming support for real-time feedback
 - **Context approach:**
   - Concatenate ALL org docs + ALL RFT docs
-  - Send full context per generation
-  - Let Gemini handle it (1M tokens plenty for MVP)
+  - Validate context fits 64K token limit (js-tiktoken)
+  - Cache assembled context (5 min TTL)
+  - Smart batching: 2-3 docs per batch for bulk generation
+  - Automatic retry with exponential backoff
 
 ### What We're NOT Building (MVP)
 - ✗ Email invitations (just UI mockups)
@@ -337,11 +340,11 @@ const result = await model.generateContent({
 
 ## Common Questions (Future You Might Ask)
 
-### Q: Why Gemini 2.5 Flash instead of Claude?
-**A:** Cost + 1M context. Claude better quality but expensive for MVP. Gemini free tier sufficient for demo.
+### Q: Why Gemini 2.0 Flash instead of Claude?
+**A:** Cost + free tier. Claude better quality but expensive for MVP. Gemini 2.0 Flash has 64K token context which is sufficient for typical tender documents with smart batching. Free tier adequate for demo.
 
 ### Q: Why no RAG?
-**A:** MVP simplicity. RFTs typically <100K tokens, org docs <50K. Total context <200K tokens (well under 1M limit). No need for complexity.
+**A:** MVP simplicity. With 64K token limit, we use smart batching (2-3 docs per request) and context caching. For single documents, RFT + org docs typically fit within 64K. For bulk generation, client-orchestrated batching splits work into manageable chunks. No need for vector DB complexity.
 
 ### Q: Why match TenderCreator UI?
 **A:** We're pitching to enhance THEIR product. Showing we understand their design language proves we can integrate seamlessly.

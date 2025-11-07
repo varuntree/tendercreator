@@ -1,4 +1,4 @@
-import { model } from './client'
+import { executeRequest, parseJsonResponse } from './gemini-service'
 import { buildAnalysisPrompt } from './prompts/analyze-rft'
 import { buildExtractionPrompt } from './prompts/extract-requirements'
 import { Requirement } from '../repositories/work-packages'
@@ -94,10 +94,20 @@ export async function analyzeRFTDocuments(
     const prompt = buildAnalysisPrompt(rftTexts, projectName, instructions)
     console.log('[Analysis] Sending prompt to Gemini for project:', projectId)
 
-    const result = await model.generateContent(prompt)
-    const response = result.response
-    const text = response.text()
+    const response = await executeRequest({
+      prompt,
+      requestType: 'rft-analysis',
+      temperature: 0.7,
+    })
 
+    if (!response.success) {
+      return {
+        success: false,
+        error: response.error || 'RFT analysis failed',
+      }
+    }
+
+    const text = response.data as string
     console.log('[Analysis] Gemini response length:', text.length)
     console.log('[Analysis] Gemini response preview:', text.substring(0, 500))
 
@@ -123,21 +133,20 @@ export async function extractRequirementsForDocument(
 ): Promise<Requirement[]> {
   try {
     const prompt = buildExtractionPrompt(rftTexts, documentType)
-    const result = await model.generateContent(prompt)
-    const response = result.response
-    const text = response.text()
 
-    // Parse response
-    let cleanText = text.trim()
-    if (cleanText.startsWith('```json')) {
-      cleanText = cleanText.replace(/^```json\n?/, '').replace(/\n?```$/, '')
-    } else if (cleanText.startsWith('```')) {
-      cleanText = cleanText.replace(/^```\n?/, '').replace(/\n?```$/, '')
+    const response = await executeRequest({
+      prompt,
+      requestType: 'extract-requirements',
+      temperature: 0.7,
+    })
+
+    if (!response.success) {
+      console.error('Failed to extract requirements:', response.error)
+      return []
     }
 
-    const parsed = JSON.parse(cleanText)
-
-    if (!parsed.requirements || !Array.isArray(parsed.requirements)) {
+    const parsed = parseJsonResponse<{ requirements: any[] }>(response)
+    if (!parsed || !parsed.requirements || !Array.isArray(parsed.requirements)) {
       return []
     }
 

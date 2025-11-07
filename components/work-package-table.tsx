@@ -22,12 +22,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { TextShimmer } from '@/components/ui/text-shimmer'
-import { bulkGenerateDocuments } from '@/libs/utils/bulk-generation'
+import { bulkGenerateDocuments } from '@/libs/utils/bulk-generation-v2'
 
 interface WorkPackage {
   id: string
   document_type: string
   document_description: string | null
+  project_id: string
   requirements: Array<{
     id: string
     text: string
@@ -72,6 +73,7 @@ export function WorkPackageTable({
   const [generatingIds, setGeneratingIds] = useState<string[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   const [messageIndex, setMessageIndex] = useState(0)
+  const [batchProgress, setBatchProgress] = useState<string>('')
 
   // Calculate pending documents count
   const pendingCount = workPackages.filter(wp => wp.status !== 'completed').length
@@ -128,6 +130,13 @@ export function WorkPackageTable({
       return
     }
 
+    // Get project ID from first work package
+    const projectId = pendingWorkPackages[0]?.project_id
+    if (!projectId) {
+      toast.error('No project ID found')
+      return
+    }
+
     // Confirm action
     const confirmed = window.confirm(
       `Generate all ${pendingWorkPackages.length} pending documents? This may take several minutes.`
@@ -143,19 +152,25 @@ export function WorkPackageTable({
     toast.info(`Starting generation of ${pendingWorkPackages.length} documents...`)
 
     try {
-      // Call bulk generation
-      const result = await bulkGenerateDocuments(pendingWorkPackages, (progress) => {
-        // Update generating IDs based on progress
-        const stillGenerating = progress
-          .filter(p => p.status !== 'completed' && p.status !== 'error')
-          .map(p => p.workPackageId)
+      // Call bulk generation with new V2 API
+      const result = await bulkGenerateDocuments(
+        projectId,
+        pendingWorkPackages.map(wp => wp.id),
+        (progress) => {
+          // Update batch progress message
+          const message = progress.phase === 'generating'
+            ? `Batch ${progress.batchNumber}/${progress.totalBatches} - ${progress.completedDocs}/${progress.totalDocs} documents`
+            : progress.message
 
-        setGeneratingIds(stillGenerating)
-      })
+          setBatchProgress(message)
+
+          // Keep all pending docs as "generating" until complete
+          // (the backend returns which ones are done, but we don't track individually)
+        }
+      )
 
       // Show results
-      const totalAttempted = result.succeeded.length + result.failed.length
-      const successMessage = `Generated ${result.succeeded.length} of ${totalAttempted} documents successfully`
+      const successMessage = `Generated ${result.succeeded.length} of ${pendingWorkPackages.length} documents successfully`
 
       if (result.failed.length > 0) {
         toast.error(`${successMessage}. ${result.failed.length} failed.`)
@@ -175,6 +190,7 @@ export function WorkPackageTable({
       // Clear loading state
       setIsGenerating(false)
       setGeneratingIds([])
+      setBatchProgress('')
     }
   }
 
@@ -185,6 +201,8 @@ export function WorkPackageTable({
         <div className="text-sm text-muted-foreground">
           {allCompleted ? (
             <span>All {workPackages.length} documents completed</span>
+          ) : isGenerating && batchProgress ? (
+            <span className="font-medium text-primary">{batchProgress}</span>
           ) : (
             <span>{pendingCount} of {workPackages.length} documents pending</span>
           )}

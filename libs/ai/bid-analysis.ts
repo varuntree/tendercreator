@@ -1,6 +1,5 @@
-import { model } from './client'
+import { executeRequest, parseJsonResponse } from './gemini-service'
 import { WorkPackage } from '@/libs/repositories/work-packages'
-import { parseGeminiError } from './error-parser'
 
 export interface AssessmentCriterion {
   id: string
@@ -21,7 +20,8 @@ export interface BidAnalysis {
 }
 
 /**
- * Generate bid/no-bid analysis for a work package
+ * Generate bid/no-bid analysis for a work package (legacy - kept for backwards compatibility)
+ * Consider using generateStrategy() from content-generation.ts for combined bid+themes
  */
 export async function generateBidAnalysis(
   workPackage: WorkPackage,
@@ -32,78 +32,72 @@ export async function generateBidAnalysis(
     rftDocs: string
   }
 ): Promise<BidAnalysis> {
-  try {
-    const prompt = buildBidAnalysisPrompt(workPackage, projectContext)
-    console.log('[Bid Analysis] Generating for:', workPackage.document_type)
+  const prompt = buildBidAnalysisPrompt(workPackage, projectContext)
+  console.log('[Bid Analysis] Generating for:', workPackage.document_type)
 
-    const result = await model.generateContent(prompt)
-    const text = result.response.text()
+  const response = await executeRequest({
+    prompt,
+    requestType: 'bid-analysis',
+    temperature: 0.7,
+  })
 
-    // Parse JSON (strip markdown fences)
-    let cleanText = text.trim()
-    if (cleanText.startsWith('```json')) {
-      cleanText = cleanText.replace(/^```json\n?/, '').replace(/\n?```$/, '')
-    } else if (cleanText.startsWith('```')) {
-      cleanText = cleanText.replace(/^```\n?/, '').replace(/\n?```$/, '')
-    }
-
-    const parsed = JSON.parse(cleanText)
-
-    // Validate structure
-    if (!parsed.criteria || !Array.isArray(parsed.criteria)) {
-      throw new Error('Invalid response: missing criteria array')
-    }
-    if (!parsed.recommendation || !['bid', 'no-bid'].includes(parsed.recommendation)) {
-      throw new Error('Invalid response: missing or invalid recommendation')
-    }
-
-    // Calculate weighted scores and total
-    const totalCriteria = parsed.criteria.length || 1
-
-    const criteria = parsed.criteria.map((c: any, index: number) => {
-      const parsedScore = typeof c.score === 'number' ? c.score : parseFloat(c.score) || 0
-      const clampedScore = Math.max(0, Math.min(5, parsedScore))
-      const weight = 1 / totalCriteria
-      const weightedScore = (clampedScore / 5) * weight
-
-      return {
-        id: String(index + 1),
-        name: c.name,
-        description: c.description,
-        score: clampedScore,
-        weight,
-        weightedScore,
-      }
-    })
-
-    const totalScore = Math.round(
-      criteria.reduce((sum: number, c: AssessmentCriterion) => sum + c.weightedScore, 0) * 100
-    )
-
-    const analysis: BidAnalysis = {
-      criteria,
-      totalScore,
-      recommendation: parsed.recommendation,
-      reasoning: parsed.reasoning || '',
-      strengths: parsed.strengths || [],
-      concerns: parsed.concerns || [],
-    }
-
-    console.log('[Bid Analysis] Generated with score:', totalScore, '| Recommendation:', analysis.recommendation)
-    return analysis
-  } catch (error) {
-    console.error('[Bid Analysis] Generation failed:', error)
-
-    // Parse error for rate limit info
-    const parsedError = parseGeminiError(error)
-
-    // Re-throw with parsed error info attached
-    const enhancedError = error instanceof Error ? error : new Error('Bid analysis generation failed')
-    ;(enhancedError as any).isRateLimitError = parsedError.isRateLimitError
-    ;(enhancedError as any).retryDelaySeconds = parsedError.retryDelaySeconds
-
-    throw enhancedError
+  if (!response.success) {
+    const error: any = new Error(response.error || 'Bid analysis generation failed')
+    error.isRateLimitError = response.isRateLimitError
+    error.retryDelaySeconds = response.retryDelaySeconds
+    throw error
   }
+
+  const parsed = parseJsonResponse<{
+    criteria: Array<{ name: string; description: string; score: number }>
+    recommendation: 'bid' | 'no-bid'
+    reasoning: string
+    strengths: string[]
+    concerns: string[]
+  }>(response)
+
+  // Validate structure
+  if (!parsed || !parsed.criteria || !Array.isArray(parsed.criteria)) {
+    throw new Error('Invalid response: missing criteria array')
+  }
+  if (!parsed.recommendation || !['bid', 'no-bid'].includes(parsed.recommendation)) {
+    throw new Error('Invalid response: missing or invalid recommendation')
+  }
+
+  // Calculate weighted scores and total
+  const totalCriteria = parsed.criteria.length || 1
+
+  const criteria = parsed.criteria.map((c, index) => {
+    const parsedScore = typeof c.score === 'number' ? c.score : parseFloat(c.score as any) || 0
+    const clampedScore = Math.max(0, Math.min(5, parsedScore))
+    const weight = 1 / totalCriteria
+    const weightedScore = (clampedScore / 5) * weight
+
+    return {
+      id: String(index + 1),
+      name: c.name,
+      description: c.description,
+      score: clampedScore,
+      weight,
+      weightedScore,
+    }
+  })
+
+  const totalScore = Math.round(
+    criteria.reduce((sum: number, c: AssessmentCriterion) => sum + c.weightedScore, 0) * 100
+  )
+
+  const analysis: BidAnalysis = {
+    criteria,
+    totalScore,
+    recommendation: parsed.recommendation,
+    reasoning: parsed.reasoning || '',
+    strengths: parsed.strengths || [],
+    concerns: parsed.concerns || [],
+  }
+
+  console.log('[Bid Analysis] Generated with score:', totalScore, '| Recommendation:', analysis.recommendation)
+  return analysis
 }
 
 /**

@@ -2,7 +2,7 @@ export const runtime = 'edge' // Bypass Vercel 10s timeout
 
 import { NextRequest } from 'next/server'
 
-import { generateDocumentContent } from '@/libs/ai/content-generation'
+import { generateDocumentContent, generateDocumentContentStream } from '@/libs/ai/content-generation'
 import { assembleProjectContext, validateContextSize } from '@/libs/ai/context-assembly'
 import {
   getWorkPackageContent,
@@ -30,6 +30,10 @@ export async function POST(
     }
 
     const workPackageId = id
+
+    // Check if client wants streaming (Accept: text/event-stream)
+    const acceptHeader = request.headers.get('accept') || ''
+    const wantsStreaming = acceptHeader.includes('text/event-stream')
 
     // Get work package with project and content
     const { workPackage, project } = await getWorkPackageWithProject(supabase, workPackageId)
@@ -66,7 +70,57 @@ export async function POST(
       )
     }
 
-    // Generate content
+    // STREAMING MODE: Stream content as it's generated
+    if (wantsStreaming) {
+      const encoder = new TextEncoder()
+      let fullContent = ''
+
+      const stream = new ReadableStream({
+        async start(controller) {
+          try {
+            // Stream chunks as they're generated
+            for await (const chunk of generateDocumentContentStream(
+              workPackage,
+              context,
+              existingContent.win_themes,
+              project.instructions
+            )) {
+              fullContent += chunk
+
+              // Send chunk as Server-Sent Event
+              const data = JSON.stringify({ text: chunk })
+              controller.enqueue(encoder.encode(`event: chunk\ndata: ${data}\n\n`))
+            }
+
+            // Save complete content to database
+            await saveGeneratedContent(supabase, workPackageId, fullContent)
+
+            // Send done event with full content
+            const doneData = JSON.stringify({ fullContent })
+            controller.enqueue(encoder.encode(`event: done\ndata: ${doneData}\n\n`))
+
+            controller.close()
+          } catch (error) {
+            console.error('Streaming error:', error)
+            const errorData = JSON.stringify({
+              error: error instanceof Error ? error.message : 'Streaming failed',
+            })
+            controller.enqueue(encoder.encode(`event: error\ndata: ${errorData}\n\n`))
+            controller.close()
+          }
+        },
+      })
+
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+      })
+    }
+
+    // NON-STREAMING MODE (backwards compatibility): Generate all at once
     const content = await generateDocumentContent(
       workPackage,
       context,

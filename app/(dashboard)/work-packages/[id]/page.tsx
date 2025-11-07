@@ -10,6 +10,7 @@ import { StrategyGenerationScreen } from '@/components/workflow-steps/strategy-g
 import { WorkflowTabs } from '@/components/workflow-steps/workflow-tabs'
 import { WorkPackageContent } from '@/libs/repositories/work-package-content'
 import { WorkPackage } from '@/libs/repositories/work-packages'
+import { clearBreadcrumbs, setBreadcrumbs } from '@/libs/utils/breadcrumbs'
 
 interface WorkPackagePageProps {
   params: Promise<{
@@ -22,6 +23,7 @@ export default function WorkPackagePage({ params }: WorkPackagePageProps) {
   const [workPackage, setWorkPackage] = useState<WorkPackage | null>(null)
   const [project, setProject] = useState<{ id: string; name: string } | null>(null)
   const [content, setContent] = useState<WorkPackageContent | null>(null)
+  const [contentLoaded, setContentLoaded] = useState(false)
   const [currentTab, setCurrentTab] = useState<'strategy' | 'edit' | 'export'>('strategy')
   const [loading, setLoading] = useState(true)
 
@@ -44,6 +46,7 @@ export default function WorkPackagePage({ params }: WorkPackagePageProps) {
       setProject(projData)
 
       // Load content (may not exist yet)
+      setContentLoaded(false)
       try {
         const contentRes = await fetch(`/api/work-packages/${workPackageId}/content`)
         if (contentRes.ok) {
@@ -56,9 +59,15 @@ export default function WorkPackagePage({ params }: WorkPackagePageProps) {
           } else {
             setCurrentTab('strategy')
           }
+        } else if (contentRes.status === 404) {
+          setContent(null)
+          setCurrentTab('strategy')
         }
       } catch {
         // Content doesn't exist yet
+        setContent(null)
+      } finally {
+        setContentLoaded(true)
       }
 
       setLoading(false)
@@ -74,21 +83,20 @@ export default function WorkPackagePage({ params }: WorkPackagePageProps) {
   }, [workPackageId, loadData])
 
   useEffect(() => {
-    if (!project) {
+    if (!project || !workPackage) {
       return
     }
 
-    if (typeof window === 'undefined') {
-      return
-    }
-
-    const detail = { projectName: project.name }
-    window.dispatchEvent(new CustomEvent('tendercreator:set-project-nav', { detail }))
+    setBreadcrumbs([
+      { label: 'Projects', href: '/projects' },
+      { label: project.name || 'Untitled Project', href: `/projects/${project.id}` },
+      { label: workPackage.document_type || 'Document' },
+    ])
 
     return () => {
-      window.dispatchEvent(new Event('tendercreator:clear-project-nav'))
+      clearBreadcrumbs()
     }
-  }, [project])
+  }, [project, workPackage])
 
   const getCompletedSteps = () => {
     const steps: string[] = []
@@ -129,6 +137,7 @@ export default function WorkPackagePage({ params }: WorkPackagePageProps) {
             workPackageId={workPackageId}
             workPackage={workPackage}
             initialContent={content}
+            contentLoaded={contentLoaded}
             onContinue={() => setCurrentTab('edit')}
             onRefresh={loadData}
           />

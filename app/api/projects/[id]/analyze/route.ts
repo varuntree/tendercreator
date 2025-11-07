@@ -1,7 +1,10 @@
 import { NextRequest } from 'next/server'
 
 import { analyzeRFTDocuments } from '@/libs/ai/analysis'
-import { getProject,updateProjectStatus } from '@/libs/repositories/projects'
+import { generateStrategy } from '@/libs/ai/content-generation'
+import { assembleProjectContext, validateContextSize } from '@/libs/ai/context-assembly'
+import { getProject, updateProjectStatus } from '@/libs/repositories/projects'
+import { saveCombinedGeneration } from '@/libs/repositories/work-package-content'
 import { createWorkPackage } from '@/libs/repositories/work-packages'
 import { createClient } from '@/libs/supabase/server'
 
@@ -104,6 +107,23 @@ export async function POST(
             return
           }
 
+          // Assemble project context once for all downstream generation
+          const projectContext = await assembleProjectContext(supabase, projectId)
+          const contextValidation = validateContextSize(projectContext)
+          if (!contextValidation.valid) {
+            const warning = contextValidation.warning || 'Context exceeds token limit'
+            sendEvent('error', { error: warning })
+            controller.enqueue(
+              encoder.encode(
+                `event: done\ndata: ${JSON.stringify({ success: false, error: warning })}\n\n`
+              )
+            )
+            controller.close()
+            return
+          } else if (contextValidation.warning) {
+            sendEvent('warning', { warning: contextValidation.warning })
+          }
+
           // Create work packages progressively
           if (result.documents) {
             console.log('[Analysis] Creating', result.documents.length, 'work packages')
@@ -120,6 +140,33 @@ export async function POST(
                 })
                 console.log('[Analysis] Created work package:', workPackage.id, doc.document_type)
                 sendEvent('document', workPackage)
+
+                try {
+                  const { bidAnalysis, winThemes } = await generateStrategy(workPackage, {
+                    name: projectContext.project.name,
+                    clientName: projectContext.project.client_name,
+                    organizationDocs: projectContext.organizationDocs,
+                    rftDocs: projectContext.rftDocs,
+                  })
+
+                  await saveCombinedGeneration(supabase, workPackage.id, {
+                    bid_analysis: bidAnalysis,
+                    win_themes: winThemes,
+                  })
+
+                  sendEvent('strategy', {
+                    workPackageId: workPackage.id,
+                    success: true,
+                  })
+                } catch (strategyError) {
+                  const message = strategyError instanceof Error ? strategyError.message : 'Strategy generation failed'
+                  console.error('[Analysis] Strategy generation failed:', message)
+                  sendEvent('strategy', {
+                    workPackageId: workPackage.id,
+                    success: false,
+                    error: message,
+                  })
+                }
               } catch (error) {
                 console.error('[Analysis] Failed to create work package:', error)
                 throw error

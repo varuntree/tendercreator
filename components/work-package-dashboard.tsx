@@ -13,6 +13,7 @@ interface WorkPackage {
   id: string
   document_type: string
   document_description: string | null
+  project_id: string
   requirements: Array<{
     id: string
     text: string

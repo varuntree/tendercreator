@@ -1,29 +1,94 @@
 'use client'
 
 import { Home } from 'lucide-react'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 
-// Route to display name mapping
-const getPageName = (pathname: string): string => {
-  if (pathname === '/projects' || pathname === '/') return 'Projects'
-  if (pathname.startsWith('/projects/')) return 'Project Workspace'
-  if (pathname === '/settings') return 'Settings'
-  if (pathname === '/settings/documents') return 'Documents'
-  if (pathname === '/settings/team') return 'Team'
-  if (pathname === '/settings/billing') return 'Billing'
-  if (pathname === '/resources') return 'Resources'
-  if (pathname === '/docs') return 'Documentation'
-  return 'Projects'
+import {
+  BREADCRUMB_CLEAR_EVENT,
+  BREADCRUMB_EVENT,
+  type BreadcrumbEventDetail,
+  type BreadcrumbSegment,
+} from '@/libs/utils/breadcrumbs'
+
+const defaultProjectsCrumb: BreadcrumbSegment = { label: 'Projects', href: '/projects' }
+
+const deriveFallbackSegments = (pathname: string): BreadcrumbSegment[] => {
+  if (!pathname || pathname === '/' || pathname === '/projects') {
+    return [{ label: 'Projects' }]
+  }
+
+  if (pathname.startsWith('/projects/')) {
+    const [, , projectId] = pathname.split('/')
+    return [
+      defaultProjectsCrumb,
+      {
+        label: 'Project',
+        href: projectId ? `/projects/${projectId}` : undefined,
+      },
+    ]
+  }
+
+  if (pathname.startsWith('/work-packages/')) {
+    return [defaultProjectsCrumb, { label: 'Document' }]
+  }
+
+  if (pathname.startsWith('/settings')) {
+    return [{ label: 'Settings' }]
+  }
+
+  return [{ label: 'Projects' }]
 }
 
 export default function Breadcrumbs() {
   const pathname = usePathname()
-  const pageName = getPageName(pathname)
+  const [customSegments, setCustomSegments] = useState<BreadcrumbSegment[] | null>(null)
+
+  useEffect(() => {
+    const handleSet = (event: Event) => {
+      const detail = (event as CustomEvent<BreadcrumbEventDetail>).detail
+      if (detail?.segments?.length) {
+        setCustomSegments(detail.segments)
+      }
+    }
+
+    const handleClear = () => {
+      setCustomSegments(null)
+    }
+
+    window.addEventListener(BREADCRUMB_EVENT, handleSet)
+    window.addEventListener(BREADCRUMB_CLEAR_EVENT, handleClear)
+
+    return () => {
+      window.removeEventListener(BREADCRUMB_EVENT, handleSet)
+      window.removeEventListener(BREADCRUMB_CLEAR_EVENT, handleClear)
+    }
+  }, [])
+
+  const fallbackSegments = useMemo(() => deriveFallbackSegments(pathname), [pathname])
+  const segments = customSegments && customSegments.length ? customSegments : fallbackSegments
+  const lastIndex = segments.length - 1
 
   return (
-    <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-      <Home className="h-5 w-5" />
-      <span>{pageName}</span>
-    </div>
+    <nav className="flex items-center gap-2 text-sm font-medium text-gray-600">
+      <Link href="/projects" className="text-gray-500 transition-colors hover:text-gray-900">
+        <Home className="h-4 w-4" />
+      </Link>
+      {segments.map((segment, index) => (
+        <Fragment key={`${segment.label}-${index}`}>
+          <span className="text-gray-300">/</span>
+          {segment.href && index !== lastIndex ? (
+            <Link href={segment.href} className="text-gray-500 transition-colors hover:text-gray-900">
+              {segment.label}
+            </Link>
+          ) : (
+            <span className={index === lastIndex ? 'text-gray-900 font-semibold' : undefined}>
+              {segment.label}
+            </span>
+          )}
+        </Fragment>
+      ))}
+    </nav>
   )
 }

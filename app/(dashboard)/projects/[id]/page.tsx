@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
 import { AnalysisTrigger } from '@/components/analysis-trigger'
+import { DeleteProjectDialog } from '@/components/delete-project-dialog'
 import { EditProjectDetailsDialog, type ProjectUpdatePayload } from '@/components/edit-project-details-dialog'
 import { EmptyState } from '@/components/empty-state'
 import FileUpload from '@/components/file-upload'
@@ -14,11 +15,13 @@ import { ProjectDocumentsTable } from '@/components/project-documents-table'
 import { Button } from '@/components/ui/button'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { WorkPackageDashboard } from '@/components/work-package-dashboard'
+import { clearBreadcrumbs, setBreadcrumbs } from '@/libs/utils/breadcrumbs'
 
 interface WorkPackage {
   id: string
   document_type: string
   document_description: string | null
+  project_id: string
   requirements: Array<{
     id: string
     text: string
@@ -106,6 +109,21 @@ export default function ProjectDetailPage() {
   useEffect(() => {
     loadData()
   }, [loadData])
+
+  useEffect(() => {
+    if (!project) {
+      return
+    }
+
+    setBreadcrumbs([
+      { label: 'Projects', href: '/projects' },
+      { label: project.name || 'Untitled Project' },
+    ])
+
+    return () => {
+      clearBreadcrumbs()
+    }
+  }, [project])
 
   const handleUpload = async (file: File) => {
     const formData = new FormData()
@@ -277,15 +295,18 @@ export default function ProjectDetailPage() {
             <ArrowLeft className="size-4" />
             Back to all projects
           </Link>
-          <EditProjectDetailsDialog
-            project={project}
-            onSubmit={handleProjectUpdate}
-            trigger={
-              <Button variant="outline" size="sm">
-                Edit project details
-              </Button>
-            }
-          />
+          <div className="flex flex-wrap items-center gap-2">
+            <EditProjectDetailsDialog
+              project={project}
+              onSubmit={handleProjectUpdate}
+              trigger={
+                <Button variant="outline" size="sm">
+                  Edit project details
+                </Button>
+              }
+            />
+            <DeleteProjectDialog projectId={projectId} projectName={project.name} />
+          </div>
         </div>
 
         <section className="rounded-3xl border bg-card shadow-sm">
