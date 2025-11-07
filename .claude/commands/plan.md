@@ -9,15 +9,20 @@ Create a plan to implement the task using the exact specified markdown `Plan For
 - Create the plan in the `specs/` directory with structure: `specs/<descriptive-name>/<descriptive-name>.md`
   - Replace `<descriptive-name>` with a short, descriptive name based on the task (e.g., "add-auth-system", "implement-search", "create-dashboard")
 - Use the `Plan Format` below to create the plan.
-- Research the codebase to understand existing patterns, architecture, and conventions before planning.
+- MANDATORY: Before planning, explore codebase deeply using Task agent to:
+  - Identify all patterns relevant to this task
+  - Find similar implementations (not count, understand approach)
+  - List all components that could be affected
+  - Document patterns to follow with file:line references
 - IMPORTANT: Replace every <placeholder> in the `Plan Format` with the requested value. Add as much detail as needed to implement successfully.
-- Use your reasoning model: THINK HARD about the requirements, design, and implementation approach.
+- Use your reasoning model: THINK HARD about requirements, design, implementation approach, AND impact. What breaks if this changes? What patterns must be followed? What edge cases exist?
 - If specification documents don't clarify implementation choices (tech stack, AI/agent workflows, architecture patterns, etc.), ask explicit questions. Don't assume.
-- Deploy research sub-agents when needed to:
-  - Gather complete documentation for complex implementations (e.g., LLM workflows, hallucination reduction techniques)
-  - Research best practices and implementation approaches
-  - Create research documentation in the plan folder
-- Follow existing patterns and conventions in the codebase. Don't reinvent the wheel.
+- Deploy research sub-agents for:
+  - Unfamiliar tech/architectural decisions
+  - Complex implementations needing best practices
+  - Security/performance critical features
+  - Create research docs in plan folder
+- Follow existing patterns discovered in codebase exploration. Document pattern sources (file:line). Justify any deviations explicitly.
 - Design for extensibility and maintainability.
 - If you need a new library, use `npm install` and be sure to report it in the `Notes` section of the `Plan Format`.
 - Don't use decorators. Keep it simple.
@@ -87,6 +92,9 @@ So that <benefit/value>
 ## Solution Statement
 <describe the proposed solution approach and how it solves the problem>
 
+## Pattern Analysis
+<what patterns were discovered in codebase exploration? which files demonstrate these patterns? any deviations needed and why?>
+
 ## Dependencies
 ### Previous Plans
 <list previous plans this depends on and what specifically is needed from them>
@@ -139,7 +147,7 @@ Use these files to implement the task:
 ## Validation Commands
 Execute every command to validate the task works correctly with zero regressions.
 
-<list commands you'll use to validate with 100% confidence the task is implemented correctly with zero regressions. every command must execute without errors so be specific about what you want to run to validate the task works as expected. Include commands to test the task end-to-end.>
+<list commands with EXPECTED OUTPUT. Not "validate works" but "npm test should show X passing" or "API returns {expected JSON}". Be specific about what you want to run and what output confirms success. Include commands to test the task end-to-end.>
 
 <If you created an E2E test, include the following validation step: `Read .claude/commands/test_e2e.md`, then read and execute your new E2E `.claude/commands/e2e/test_<descriptive_name>.md` test file to validate this functionality works.>
 
@@ -151,6 +159,13 @@ Execute every command to validate the task works correctly with zero regressions
 
 # Implementation log created at:
 # specs/<descriptive-name>/<descriptive-name>_implementation.log
+
+## Definition of Done
+- [ ] All acceptance criteria met
+- [ ] All validation commands pass with expected output
+- [ ] No regressions (existing tests still pass)
+- [ ] Patterns followed (documented in Pattern Analysis)
+- [ ] E2E test created and passing (if UI change)
 
 ## Notes
 <optionally list any additional notes, future considerations, or context that are relevant to the task that will be helpful to the developer>
