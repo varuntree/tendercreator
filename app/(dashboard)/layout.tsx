@@ -1,25 +1,23 @@
 import '@/app/(dashboard)/globals-dashboard.css'
 
-import { redirect } from 'next/navigation'
-
 import Navbar from '@/components/navbar'
 import Sidebar from '@/components/sidebar'
-import { createClient } from '@/libs/supabase/server'
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createClient()
+  // TEMP: Disable auth check for UI iteration
+  // const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect('/signin')
-  }
+  // if (!user) {
+  //   redirect('/signin')
+  // }
 
   return (
     <div className="flex h-screen">

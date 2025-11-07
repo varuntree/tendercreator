@@ -18,6 +18,7 @@ import { Loader2, PenLine, SendHorizontal } from 'lucide-react'
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
+import { Badge } from '@/components/ui/badge'
 import { htmlToMarkdown } from '@/libs/utils/html-to-markdown'
 
 import { EditorToolbar } from './editor-toolbar'
@@ -237,7 +238,7 @@ export function ContentEditor({ workPackageId, initialContent, onContentChange }
     editorProps: {
       attributes: {
         class:
-          'prose prose-sm sm:prose lg:prose-lg dark:prose-invert prose-table:border-collapse prose-th:border prose-th:border-gray-300 prose-th:bg-gray-100 prose-th:p-2 prose-td:border prose-td:border-gray-300 prose-td:p-2 mx-auto h-full min-h-full overflow-y-auto px-4 py-4 focus:outline-none',
+          'prose prose-sm sm:prose lg:prose-lg dark:prose-invert prose-table:border-collapse prose-th:border prose-th:border-gray-300 prose-th:bg-gray-100 prose-th:p-2 prose-td:border prose-td:border-gray-300 prose-td:p-2 mx-auto h-full min-h-full overflow-y-auto px-3 py-3 focus:outline-none',
       },
     },
     onUpdate: ({ editor }) => {
@@ -304,6 +305,7 @@ export function ContentEditor({ workPackageId, initialContent, onContentChange }
       setAiErrorMessage(null)
     }
   }, [selectionText, editor])
+
 
   const bubbleMenuShouldShow = useCallback(
     ({ state }: BubbleShouldShowProps) => {
@@ -608,18 +610,18 @@ export function ContentEditor({ workPackageId, initialContent, onContentChange }
   return (
     <div className="flex flex-1 min-h-0 flex-col space-y-2">
       {isGeneratingContent && (
-        <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-lg border border-primary/20">
-          <Loader2 className="size-4 animate-spin" />
-          <span className="text-sm font-medium">Generating content... Content will appear below as it&apos;s generated.</span>
+        <div className="flex items-center gap-2 p-3 bg-primary/10 text-primary rounded-lg border border-primary/20">
+          <Loader2 className="size-3 animate-spin" />
+          <span className="text-xs font-medium">Generating content... Content will appear below as it&apos;s generated.</span>
         </div>
       )}
       <div className="flex flex-shrink-0 items-center justify-between">
         <EditorToolbar editor={editor} />
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <span>{wordCount} words</span>
-          {saveStatus === 'saving' && <span>Saving...</span>}
-          {saveStatus === 'saved' && <span className="text-green-600 dark:text-green-400">Saved</span>}
-          {saveStatus === 'error' && <span className="text-red-600 dark:text-red-400">Error</span>}
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <Badge variant="secondary" className="h-5 text-xs">{wordCount} words</Badge>
+          {saveStatus === 'saving' && <Badge variant="outline" className="h-5 text-xs">Saving...</Badge>}
+          {saveStatus === 'saved' && <Badge variant="outline" className="h-5 text-xs text-green-600">Saved</Badge>}
+          {saveStatus === 'error' && <Badge variant="destructive" className="h-5 text-xs">Error</Badge>}
         </div>
       </div>
       <div className="relative flex flex-1 min-h-0 overflow-hidden rounded-lg border bg-background">
@@ -637,17 +639,12 @@ export function ContentEditor({ workPackageId, initialContent, onContentChange }
             onKeyDownCapture={event => event.stopPropagation()}
             className="w-[520px] max-w-[min(520px,calc(100vw-64px))]"
           >
-            {selectionText ? (
-              <p className="mb-2 text-xs font-medium text-muted-foreground line-clamp-2">
-                Editing: <span className="text-foreground">{selectionText}</span>
-              </p>
-            ) : null}
-            <div className="flex items-center gap-3 rounded-[24px] border-2 border-[#10B981] bg-white px-5 py-4 shadow-[0_20px_32px_rgba(16,185,129,0.18)] dark:border-[#14A66F] dark:bg-slate-900 dark:shadow-[0_20px_36px_rgba(20,166,111,0.22)]">
-              <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-[#10B981]/10 text-[#047857] dark:bg-[#14A66F]/20 dark:text-[#6EE7B7]">
-                <PenLine className="size-5" strokeWidth={2} />
+            <div className="flex items-center gap-3 rounded-[24px] border-2 border-[#10B981] bg-white px-4 py-3 shadow-[0_20px_32px_rgba(16,185,129,0.18)] dark:border-[#14A66F] dark:bg-slate-900 dark:shadow-[0_20px_36px_rgba(20,166,111,0.22)]">
+              <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[#10B981]/10 text-[#047857] dark:bg-[#14A66F]/20 dark:text-[#6EE7B7]">
+                <PenLine className="size-4" strokeWidth={2} />
               </span>
               <input
-                className="flex-1 border-none bg-transparent text-base font-medium leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/70 disabled:opacity-70 dark:text-foreground"
+                className="flex-1 border-none bg-transparent text-sm font-medium leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/70 disabled:opacity-70 dark:text-foreground"
                 placeholder="Find me evidence for this statement"
                 value={aiInstruction}
                 onChange={event => {
@@ -660,14 +657,14 @@ export function ContentEditor({ workPackageId, initialContent, onContentChange }
               />
               <button
                 type="submit"
-                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-[#10B981] text-white shadow-[0_14px_28px_rgba(16,185,129,0.35)] transition hover:bg-[#0EA371] disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none dark:bg-[#14A66F] dark:hover:bg-[#119360]"
+                className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[#10B981] text-white shadow-[0_14px_28px_rgba(16,185,129,0.35)] transition hover:bg-[#0EA371] disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none dark:bg-[#14A66F] dark:hover:bg-[#119360]"
                 disabled={isAiProcessing || !aiInstruction.trim()}
                 aria-label="Send instruction to AI"
               >
                 {isAiProcessing ? (
-                  <Loader2 className="size-5 animate-spin" />
+                  <Loader2 className="size-4 animate-spin" />
                 ) : (
-                  <SendHorizontal className="size-5" />
+                  <SendHorizontal className="size-4" />
                 )}
               </button>
             </div>

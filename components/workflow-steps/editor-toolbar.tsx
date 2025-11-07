@@ -33,39 +33,41 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       <Button
         variant="ghost"
         size="sm"
+        className="h-7"
         onClick={() => editor.chain().focus().undo().run()}
         disabled={!editor.can().undo()}
       >
-        <Undo className="size-4" />
+        <Undo className="size-3.5" />
       </Button>
       <Button
         variant="ghost"
         size="sm"
+        className="h-7"
         onClick={() => editor.chain().focus().redo().run()}
         disabled={!editor.can().redo()}
       >
-        <Redo className="size-4" />
+        <Redo className="size-3.5" />
       </Button>
 
       <div className="w-px h-6 bg-border mx-1" />
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" className="h-7">
             Heading
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}>
-            <Heading1 className="mr-2 size-4" />
+            <Heading1 className="mr-2 size-3.5" />
             Heading 1
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>
-            <Heading2 className="mr-2 size-4" />
+            <Heading2 className="mr-2 size-3.5" />
             Heading 2
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>
-            <Heading3 className="mr-2 size-4" />
+            <Heading3 className="mr-2 size-3.5" />
             Heading 3
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => editor.chain().focus().setParagraph().run()}>
@@ -77,20 +79,20 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       <Button
         variant="ghost"
         size="sm"
+        className="h-7 data-[active=true]:bg-muted"
         onClick={() => editor.chain().focus().toggleBold().run()}
         data-active={editor.isActive('bold')}
-        className="data-[active=true]:bg-muted"
       >
-        <Bold className="size-4" />
+        <Bold className="size-3.5" />
       </Button>
       <Button
         variant="ghost"
         size="sm"
+        className="h-7 data-[active=true]:bg-muted"
         onClick={() => editor.chain().focus().toggleItalic().run()}
         data-active={editor.isActive('italic')}
-        className="data-[active=true]:bg-muted"
       >
-        <Italic className="size-4" />
+        <Italic className="size-3.5" />
       </Button>
 
       <div className="w-px h-6 bg-border mx-1" />
@@ -98,20 +100,20 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       <Button
         variant="ghost"
         size="sm"
+        className="h-7 data-[active=true]:bg-muted"
         onClick={() => editor.chain().focus().toggleBulletList().run()}
         data-active={editor.isActive('bulletList')}
-        className="data-[active=true]:bg-muted"
       >
-        <List className="size-4" />
+        <List className="size-3.5" />
       </Button>
       <Button
         variant="ghost"
         size="sm"
+        className="h-7 data-[active=true]:bg-muted"
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
         data-active={editor.isActive('orderedList')}
-        className="data-[active=true]:bg-muted"
       >
-        <ListOrdered className="size-4" />
+        <ListOrdered className="size-3.5" />
       </Button>
 
       <div className="w-px h-6 bg-border mx-1" />
@@ -119,14 +121,16 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       <Button
         variant="ghost"
         size="sm"
+        className="h-7"
         onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
         title="Insert Table"
       >
-        <TableIcon className="size-4" />
+        <TableIcon className="size-3.5" />
       </Button>
       <Button
         variant="ghost"
         size="sm"
+        className="h-7"
         onClick={() => editor.chain().focus().addRowAfter().run()}
         disabled={!editor.can().addRowAfter()}
         title="Add Row"
@@ -136,6 +140,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       <Button
         variant="ghost"
         size="sm"
+        className="h-7"
         onClick={() => editor.chain().focus().deleteRow().run()}
         disabled={!editor.can().deleteRow()}
         title="Delete Row"
@@ -145,6 +150,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       <Button
         variant="ghost"
         size="sm"
+        className="h-7"
         onClick={() => editor.chain().focus().addColumnAfter().run()}
         disabled={!editor.can().addColumnAfter()}
         title="Add Column"
@@ -154,6 +160,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       <Button
         variant="ghost"
         size="sm"
+        className="h-7"
         onClick={() => editor.chain().focus().deleteColumn().run()}
         disabled={!editor.can().deleteColumn()}
         title="Delete Column"
@@ -166,9 +173,10 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       <Button
         variant="ghost"
         size="sm"
+        className="h-7"
         onClick={() => editor.chain().focus().clearNodes().unsetAllMarks().run()}
       >
-        <RemoveFormatting className="size-4" />
+        <RemoveFormatting className="size-3.5" />
       </Button>
     </div>
   )

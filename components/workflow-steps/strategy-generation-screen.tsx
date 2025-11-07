@@ -6,7 +6,6 @@ import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { cn } from '@/lib/utils'
@@ -87,167 +86,24 @@ export function StrategyGenerationScreen({
   const statusMeta = useMemo(() => {
     if (!contentLoaded) {
       return {
-        label: 'Loading strategy...',
-        tone: 'text-slate-600 bg-slate-100 border-slate-200',
-        helper: 'Fetching saved bid guidance and win themes.',
+        label: 'Loading...',
+        tone: 'text-slate-600 bg-slate-100',
       }
     }
     if (hasStrategyData) {
       return {
-        label: 'Strategy ready',
-        tone: 'text-emerald-600 bg-emerald-100 border-emerald-200',
-        helper: 'Bid decision and win themes generated during analysis.',
+        label: 'Ready',
+        tone: 'text-emerald-600 bg-emerald-100',
       }
     }
     return {
-      label: 'Strategy unavailable',
-      tone: 'text-amber-600 bg-amber-100 border-amber-200',
-      helper: 'Regenerate strategy to populate this section.',
+      label: 'Unavailable',
+      tone: 'text-amber-600 bg-amber-100',
     }
   }, [contentLoaded, hasStrategyData])
 
   const mandatoryCount = workPackage.requirements.filter((req) => req.priority === 'mandatory').length
   const optionalCount = workPackage.requirements.length - mandatoryCount
-
-  const requirementList = workPackage.requirements.length ? (
-    <div className="space-y-3">
-      {workPackage.requirements.map((req: Requirement, index: number) => (
-        <div key={req.id} className="rounded-2xl border border-border/60 bg-background p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
-              <span className="font-semibold text-foreground">#{index + 1}</span>
-              <Badge
-                variant={req.priority === 'mandatory' ? 'destructive' : 'secondary'}
-                className="capitalize"
-              >
-                {req.priority}
-              </Badge>
-            </div>
-            {req.source && <span className="text-xs text-muted-foreground">{req.source}</span>}
-          </div>
-          <p className="mt-3 text-sm leading-relaxed text-foreground">{req.text}</p>
-        </div>
-      ))}
-    </div>
-  ) : (
-    <div className="rounded-2xl border border-dashed border-muted-foreground/40 p-10 text-center">
-      <p className="text-sm text-muted-foreground">No requirements captured for this document yet.</p>
-    </div>
-  )
-
-  const recommendationTone = bidAnalysis?.recommendation === 'bid' ? 'text-emerald-600' : 'text-rose-600'
-  const recommendationLabel = bidAnalysis?.recommendation === 'bid' ? 'Bid' : 'No-Bid'
-
-  const renderBidSection = () => {
-    if (!contentLoaded) {
-      return <LoadingSpinner size="sm" text="Loading saved strategy..." />
-    }
-
-    if (!bidAnalysis) {
-      return (
-        <div className="rounded-2xl border border-dashed border-muted p-10 text-center text-sm text-muted-foreground">
-          Strategy data unavailable. Regenerate to unlock bid guidance.
-        </div>
-      )
-    }
-
-    return (
-      <div className="space-y-6">
-        <div className="rounded-2xl border bg-gradient-to-br from-background to-muted/40 p-5">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Recommendation</p>
-              <div className="mt-1 flex items-baseline gap-2">
-                <span className={cn('text-2xl font-semibold', recommendationTone)}>{recommendationLabel}</span>
-                <span className="text-sm text-muted-foreground">{bidAnalysis.reasoning || 'Summary available in editor'}</span>
-              </div>
-            </div>
-            <div className="rounded-full bg-background px-4 py-2 text-sm font-semibold text-foreground shadow-sm">
-              {bidAnalysis.totalScore}% fit score
-            </div>
-          </div>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <StrategyList title="Strengths" items={bidAnalysis.strengths} tone="positive" />
-          <StrategyList title="Concerns" items={bidAnalysis.concerns} tone="negative" />
-        </div>
-
-        <div className="rounded-2xl border border-border/70">
-          <div className="flex items-center justify-between border-b border-border/70 px-5 py-3">
-            <p className="text-sm font-semibold">Assessment Criteria</p>
-            <span className="text-xs text-muted-foreground">Score 0-5</span>
-          </div>
-          <div className="divide-y divide-border/60">
-            {bidAnalysis.criteria.map((criterion) => (
-              <div key={criterion.id} className="flex flex-col gap-1 px-5 py-3 md:flex-row md:items-center">
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{criterion.name}</p>
-                  <p className="text-xs text-muted-foreground">{criterion.description}</p>
-                </div>
-                <div className="flex items-center gap-3 text-sm font-semibold">
-                  <span className="text-primary">{criterion.score.toFixed(1)}/5</span>
-                  <Badge variant="outline">{(criterion.weight * 100).toFixed(0)}% weight</Badge>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const renderWinThemes = () => {
-    if (!contentLoaded) {
-      return <LoadingSpinner size="sm" text="Loading win themes..." />
-    }
-
-    if (!winThemes.length) {
-      return (
-        <div className="rounded-2xl border border-dashed border-muted p-10 text-center text-sm text-muted-foreground">
-          Win themes unavailable. Regenerate to populate this list.
-        </div>
-      )
-    }
-
-    return (
-      <div className="space-y-3">
-        {winThemes.map((theme, index) => (
-          <div key={index} className="rounded-2xl border border-border/70 bg-background/80 p-4">
-            {editingIndex === index ? (
-              <div className="flex gap-2">
-                <Input value={editText} onChange={(event) => setEditText(event.target.value)} className="flex-1" />
-                <Button size="sm" onClick={() => handleSaveEdit(index)}>
-                  <Check className="size-4" />
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-start justify-between gap-3">
-                <p className="flex-1 text-sm leading-relaxed">{theme}</p>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleEdit(index)}>
-                    <Edit className="size-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                    onClick={() => handleDelete(index)}
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-        <Button variant="outline" onClick={handleAdd} className="w-full">
-          <Plus className="mr-2 size-4" />
-          Add Win Theme
-        </Button>
-      </div>
-    )
-  }
 
   const handleEdit = (index: number) => {
     setEditingIndex(index)
@@ -272,125 +128,251 @@ export function StrategyGenerationScreen({
     setEditText('New win theme...')
   }
 
-  const heroCta = (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-      {isContentGenerated && (
-        <Button variant="outline" onClick={onContinue} className="w-full sm:w-auto">
-          Continue in Editor
-          <ChevronRight className="ml-2 size-4" />
-        </Button>
-      )}
-      <Button
-        onClick={handleGenerateContent}
-        disabled={!hasStrategyData}
-        size="lg"
-        className="w-full sm:w-auto"
-      >
-        <Sparkles className="mr-2 size-4" />
-        Generate Content
-      </Button>
-    </div>
-  )
+  const recommendationTone = bidAnalysis?.recommendation === 'bid' ? 'text-emerald-600' : 'text-rose-600'
+  const recommendationLabel = bidAnalysis?.recommendation === 'bid' ? 'Bid' : 'No-Bid'
 
   return (
-    <div className="space-y-8">
-      <section className="rounded-3xl border bg-gradient-to-br from-muted/40 via-background to-background p-6 md:p-8">
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-4">
-            <Badge className={cn('w-fit border text-xs font-semibold', statusMeta.tone)}>
-              {statusMeta.label}
-            </Badge>
-            <div>
-              <h2 className="text-3xl font-semibold">Tender Planning</h2>
-              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                Validate requirements, assess competitiveness, and capture win themes before generating content.
-              </p>
-            </div>
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{statusMeta.helper}</p>
-          </div>
-          {heroCta}
+    <div className="space-y-4 p-4 pb-32">
+      {/* Compact header - NO BUTTONS */}
+      <div className="flex items-center justify-between gap-4 border-b pb-4">
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-semibold">Tender Planning</h2>
+          <Badge className={cn('text-xs', statusMeta.tone)}>{statusMeta.label}</Badge>
         </div>
-      </section>
+        {hasStrategyData && (
+          <Button variant="ghost" size="sm" onClick={handleGenerateStrategy}>
+            <Sparkles className="mr-1 size-3" />
+            Regenerate
+          </Button>
+        )}
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-[2fr,3fr]">
-        <Card className="h-full border border-border/80">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Requirements Map</CardTitle>
-                <p className="text-sm text-muted-foreground">{workPackage.document_type}</p>
+      <div className="grid gap-4 lg:grid-cols-2">
+        {/* Requirements table */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold">Requirements ({workPackage.requirements.length})</h3>
+            <div className="flex gap-2 text-xs">
+              <Badge variant="outline" className="h-5 text-xs">M: {mandatoryCount}</Badge>
+              <Badge variant="outline" className="h-5 text-xs">O: {optionalCount}</Badge>
+            </div>
+          </div>
+
+          {workPackage.requirements.length ? (
+            <div className="rounded border">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    <th className="p-2 text-left font-medium">#</th>
+                    <th className="p-2 text-left font-medium">Priority</th>
+                    <th className="p-2 text-left font-medium">Requirement</th>
+                    <th className="p-2 text-left font-medium">Source</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {workPackage.requirements.map((req: Requirement, index: number) => (
+                    <tr key={req.id} className="border-b last:border-0 hover:bg-muted/30">
+                      <td className="p-2 font-medium">{index + 1}</td>
+                      <td className="p-2">
+                        <Badge
+                          variant={req.priority === 'mandatory' ? 'destructive' : 'secondary'}
+                          className="h-4 text-[10px]"
+                        >
+                          {req.priority === 'mandatory' ? 'M' : 'O'}
+                        </Badge>
+                      </td>
+                      <td className="p-2 leading-tight">{req.text}</td>
+                      <td className="p-2 text-muted-foreground">{req.source || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="rounded border border-dashed p-6 text-center text-xs text-muted-foreground">
+              No requirements captured
+            </div>
+          )}
+        </div>
+
+        {/* Bid analysis compact */}
+        <div className="space-y-2">
+          <h3 className="text-sm font-semibold">Bid Guidance</h3>
+
+          {!contentLoaded ? (
+            <LoadingSpinner size="sm" text="Loading..." />
+          ) : !bidAnalysis ? (
+            <div className="rounded border border-dashed p-6 text-center text-xs text-muted-foreground">
+              Strategy unavailable. Regenerate to unlock.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {/* Recommendation */}
+              <div className="rounded border bg-muted/30 p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Recommendation</span>
+                    <span className={cn('text-sm font-semibold', recommendationTone)}>{recommendationLabel}</span>
+                  </div>
+                  <Badge variant="outline" className="h-5 text-xs">{bidAnalysis.totalScore}%</Badge>
+                </div>
+                {bidAnalysis.reasoning && (
+                  <p className="mt-2 text-xs text-muted-foreground leading-tight">{bidAnalysis.reasoning}</p>
+                )}
               </div>
-              <div className="flex gap-2 text-xs text-muted-foreground">
-                <Badge variant="outline">Mandatory {mandatoryCount}</Badge>
-                <Badge variant="outline">Optional {optionalCount}</Badge>
+
+              {/* Strengths & Concerns */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded border p-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Strengths</p>
+                  <div className="mt-2 space-y-1">
+                    {bidAnalysis.strengths.length ? (
+                      bidAnalysis.strengths.map((item, i) => (
+                        <div key={i} className="flex items-start gap-1 text-xs">
+                          <div className="mt-1 size-1 shrink-0 rounded-full bg-emerald-500" />
+                          <p className="leading-tight">{item}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-xs text-muted-foreground">None</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="rounded border p-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Concerns</p>
+                  <div className="mt-2 space-y-1">
+                    {bidAnalysis.concerns.length ? (
+                      bidAnalysis.concerns.map((item, i) => (
+                        <div key={i} className="flex items-start gap-1 text-xs">
+                          <div className="mt-1 size-1 shrink-0 rounded-full bg-rose-500" />
+                          <p className="leading-tight">{item}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-xs text-muted-foreground">None</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Criteria */}
+              <div className="rounded border">
+                <div className="border-b bg-muted/30 px-3 py-1.5">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide">Criteria</p>
+                </div>
+                <div className="divide-y">
+                  {bidAnalysis.criteria.map((criterion) => (
+                    <div key={criterion.id} className="flex items-center justify-between px-3 py-1.5">
+                      <div className="flex-1">
+                        <p className="text-xs font-medium">{criterion.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{criterion.description}</p>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="font-semibold">{criterion.score.toFixed(1)}</span>
+                        <Badge variant="outline" className="h-4 text-[10px]">
+                          {(criterion.weight * 100).toFixed(0)}%
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="max-h-[560px] space-y-6 overflow-y-auto pr-2">
-            {requirementList}
-          </CardContent>
-        </Card>
-
-        <div className="space-y-6">
-          <Card className="border border-border/80">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Bid / No-Bid Guidance</CardTitle>
-                <p className="text-sm text-muted-foreground">Evidence-based recommendation</p>
-              </div>
-              {hasStrategyData && (
-                <Button variant="ghost" size="sm" onClick={handleGenerateStrategy}>
-                  <Sparkles className="mr-2 size-4" />
-                  Regenerate
-                </Button>
-              )}
-            </CardHeader>
-            <CardContent>{renderBidSection()}</CardContent>
-          </Card>
-
-          <Card className="border border-border/80">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Win Themes</CardTitle>
-                <p className="text-sm text-muted-foreground">3-5 differentiators to anchor the response</p>
-              </div>
-              <Badge variant="secondary">{winThemes.length} themes</Badge>
-            </CardHeader>
-            <CardContent>{renderWinThemes()}</CardContent>
-          </Card>
+          )}
         </div>
       </div>
-    </div>
-  )
-}
 
-interface StrategyListProps {
-  title: string
-  items: string[]
-  tone: 'positive' | 'negative'
-}
+      {/* Win themes inline editable list */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold">Win Themes</h3>
+          <Badge variant="secondary" className="h-5 text-xs">{winThemes.length}</Badge>
+        </div>
 
-function StrategyList({ title, items, tone }: StrategyListProps) {
-  if (!items.length) {
-    return (
-      <div className="rounded-2xl border border-dashed border-muted p-6 text-center text-sm text-muted-foreground">
-        No {title.toLowerCase()} captured.
-      </div>
-    )
-  }
-
-  return (
-    <div className="rounded-2xl border border-border/70 bg-background/60 p-5">
-      <p className="text-sm font-semibold">{title}</p>
-      <div className="mt-4 space-y-3">
-        {items.map((item, index) => (
-          <div key={index} className="flex items-start gap-3 text-sm text-foreground">
-            <div
-              className={cn('mt-1 size-2 rounded-full', tone === 'positive' ? 'bg-emerald-500' : 'bg-rose-500')}
-            />
-            <p className="flex-1 leading-relaxed text-sm text-foreground">{item}</p>
+        {!contentLoaded ? (
+          <LoadingSpinner size="sm" text="Loading..." />
+        ) : !winThemes.length ? (
+          <div className="rounded border border-dashed p-6 text-center text-xs text-muted-foreground">
+            Win themes unavailable. Regenerate to populate.
           </div>
-        ))}
+        ) : (
+          <div className="space-y-1">
+            {winThemes.map((theme, index) => (
+              <div key={index} className="flex items-center gap-2 rounded border bg-background p-2">
+                {editingIndex === index ? (
+                  <>
+                    <Input
+                      value={editText}
+                      onChange={(event) => setEditText(event.target.value)}
+                      className="h-7 flex-1 text-xs"
+                    />
+                    <Button size="sm" onClick={() => handleSaveEdit(index)} className="h-7 w-7 p-0">
+                      <Check className="size-3" />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <div className="size-1.5 shrink-0 rounded-full bg-primary" />
+                    <p className="flex-1 text-xs leading-tight">{theme}</p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={() => handleEdit(index)}
+                    >
+                      <Edit className="size-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                      onClick={() => handleDelete(index)}
+                    >
+                      <Trash2 className="size-3" />
+                    </Button>
+                  </>
+                )}
+              </div>
+            ))}
+            <Button variant="outline" onClick={handleAdd} size="sm" className="h-7 w-full text-xs">
+              <Plus className="mr-1 size-3" />
+              Add Theme
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Floating Action Panel - V10 Style */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <div className="flex items-center gap-3 rounded-full border border-border/50 bg-background/95 px-5 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-xl transition-all duration-300 hover:bottom-7 hover:right-7 hover:shadow-[0_12px_48px_rgba(0,0,0,0.18)]">
+          {/* Status Badge */}
+          <Badge className={cn('text-xs font-semibold', statusMeta.tone)}>
+            {statusMeta.label}
+          </Badge>
+
+          {/* Divider */}
+          <div className="h-6 w-px bg-border/40" />
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2">
+            {isContentGenerated && (
+              <Button variant="outline" onClick={onContinue} size="sm" className="h-8 text-xs">
+                Continue in Editor
+                <ChevronRight className="ml-1.5 size-3.5" />
+              </Button>
+            )}
+            <Button
+              onClick={handleGenerateContent}
+              disabled={!hasStrategyData}
+              size="sm"
+              className="h-8 text-xs font-semibold shadow-sm"
+            >
+              <Sparkles className="mr-1.5 size-3.5" />
+              Generate Content
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   )

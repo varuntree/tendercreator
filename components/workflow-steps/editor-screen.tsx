@@ -20,20 +20,17 @@ export function EditorScreen({
   onBack,
 }: EditorScreenProps) {
   return (
-    <div className="flex h-full flex-col gap-6 overflow-hidden">
-      <div className="flex flex-shrink-0 flex-col gap-4 md:flex-row md:items-start md:justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Edit Document</h2>
-          <p className="text-muted-foreground">Refine and customize your content</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" onClick={onBack}>
-            <ChevronLeft className="mr-2 size-4" />
+    <div className="flex h-full flex-col gap-4 overflow-hidden">
+      <div className="flex flex-shrink-0 flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <h2 className="text-xl font-bold">Edit Document</h2>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={onBack} size="sm" className="h-8">
+            <ChevronLeft className="mr-2 size-3.5" />
             Back to Planning
           </Button>
-          <Button onClick={onContinue}>
+          <Button onClick={onContinue} size="sm" className="h-8">
             Continue to Export
-            <ChevronRight className="ml-2 size-4" />
+            <ChevronRight className="ml-2 size-3.5" />
           </Button>
         </div>
       </div>
