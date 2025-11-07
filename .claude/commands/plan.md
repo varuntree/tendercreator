@@ -5,7 +5,7 @@ Create a plan to implement the task using the exact specified markdown `Plan For
 ## Instructions
 
 - IMPORTANT: You're writing a plan to implement a task that will add value to the application.
-- IMPORTANT: Before starting, read previous specifications in `specs/` to understand context and dependencies.
+- IMPORTANT: Before starting, read previous specifications in `/Users/varunprasad/code/prjs/tendercreator/tendercreator/ai_docs/documentation/` to understand context and dependencies.
 - Create the plan in the `specs/` directory with structure: `specs/<descriptive-name>/<descriptive-name>.md`
   - Replace `<descriptive-name>` with a short, descriptive name based on the task (e.g., "add-auth-system", "implement-search", "create-dashboard")
 - Use the `Plan Format` below to create the plan.

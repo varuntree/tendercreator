@@ -8,12 +8,6 @@ Follow the `Instructions` to implement the `Plan`, log progress, then `Report` t
 - Execute ALL steps in "Step by Step Tasks" section in order
 - Do NOT skip steps, especially UI/frontend steps
 - If acceptance criteria includes UI features, UI implementation is MANDATORY
-- Create log file in same directory as plan: `{plan_name}_implementation.log`
-- After completing every 3-5 steps, append to log:
-  - Timestamp
-  - Steps completed (e.g., "Steps 1-5")
-  - Brief summary (1-2 sentences)
-  - Files changed count
 - Continue until ALL steps complete
 
 ## Plan
