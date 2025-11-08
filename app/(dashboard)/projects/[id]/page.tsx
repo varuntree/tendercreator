@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, FileQuestion, Plus } from 'lucide-react'
+import { ArrowLeft, FileQuestion, MoreHorizontal, Plus, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -11,8 +11,15 @@ import { DeleteProjectDialog } from '@/components/delete-project-dialog'
 import { EditProjectDetailsDialog, type ProjectUpdatePayload } from '@/components/edit-project-details-dialog'
 import { EmptyState } from '@/components/empty-state'
 import FileUpload from '@/components/file-upload'
-import { ProjectDocumentsTable } from '@/components/project-documents-table'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { WorkPackageDashboard } from '@/components/work-package-dashboard'
 import { clearBreadcrumbs, setBreadcrumbs } from '@/libs/utils/breadcrumbs'
@@ -64,6 +71,33 @@ const getInitials = (name?: string | null) => {
   return initials || 'TC'
 }
 
+const KANBAN_COLUMNS = [
+  {
+    id: 'not_started',
+    title: 'Not Started',
+    statuses: ['pending'],
+    colorClass: 'bg-slate-50 border-slate-200',
+    headerClass: 'bg-slate-100 text-slate-700',
+    badgeClass: 'bg-slate-500',
+  },
+  {
+    id: 'in_progress',
+    title: 'In Progress',
+    statuses: ['in_progress', 'review'],
+    colorClass: 'bg-blue-50 border-blue-200',
+    headerClass: 'bg-blue-100 text-blue-700',
+    badgeClass: 'bg-blue-500',
+  },
+  {
+    id: 'completed',
+    title: 'Completed',
+    statuses: ['completed'],
+    colorClass: 'bg-green-50 border-green-200',
+    headerClass: 'bg-green-100 text-green-700',
+    badgeClass: 'bg-green-500',
+  },
+]
+
 export default function ProjectDetailPage() {
   const params = useParams()
   const projectId = params.id as string
@@ -111,40 +145,28 @@ export default function ProjectDetailPage() {
   }, [loadData])
 
   useEffect(() => {
-    if (!project) {
-      return
-    }
-
+    if (!project) return
     setBreadcrumbs([
       { label: 'Projects', href: '/projects' },
       { label: project.name || 'Untitled Project' },
     ])
-
-    return () => {
-      clearBreadcrumbs()
-    }
+    return () => clearBreadcrumbs()
   }, [project])
 
   const handleUpload = async (file: File) => {
     const formData = new FormData()
     formData.append('file', file)
-
     try {
       const response = await fetch(`/api/projects/${projectId}/documents`, {
         method: 'POST',
         body: formData,
       })
-
       const result = await response.json()
-      if (!result.success) {
-        throw new Error(result.error ?? 'Unable to upload document')
-      }
-
+      if (!result.success) throw new Error(result.error ?? 'Unable to upload document')
       toast.success('Document uploaded')
       await loadData()
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to upload document'
-      console.error('Document upload failed:', error)
       toast.error(message)
       throw error instanceof Error ? error : new Error(message)
     }
@@ -154,68 +176,19 @@ export default function ProjectDetailPage() {
     const formData = new FormData()
     formData.append('name', name)
     formData.append('content_text', content)
-
     try {
       const response = await fetch(`/api/projects/${projectId}/documents`, {
         method: 'POST',
         body: formData,
       })
-
       const result = await response.json()
-      if (!result.success) {
-        throw new Error(result.error ?? 'Unable to save pasted document')
-      }
-
-      toast.success('Text saved as project document')
+      if (!result.success) throw new Error(result.error ?? 'Unable to save pasted document')
+      toast.success('Text saved as document')
       await loadData()
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to save pasted document'
-      console.error('Pasted document upload failed:', error)
       toast.error(message)
       throw error instanceof Error ? error : new Error(message)
-    }
-  }
-
-  const handleDeleteDocument = async (docId: string) => {
-    const confirmed = window.confirm('Delete this document? This action cannot be undone.')
-    if (!confirmed) return
-
-    try {
-      const response = await fetch(`/api/projects/${projectId}/documents/${docId}`, {
-        method: 'DELETE',
-      })
-
-      const result = await response.json()
-      if (!result.success) {
-        throw new Error(result.error ?? 'Unable to delete document')
-      }
-
-      toast.success('Document deleted')
-      await loadData()
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to delete document'
-      console.error('Document delete failed:', error)
-      toast.error(message)
-    }
-  }
-
-  const handleSetPrimaryDocument = async (docId: string) => {
-    try {
-      const response = await fetch(`/api/projects/${projectId}/documents/${docId}/primary`, {
-        method: 'POST',
-      })
-
-      const result = await response.json()
-      if (!result.success) {
-        throw new Error(result.error ?? 'Unable to set primary RFT')
-      }
-
-      toast.success('Primary RFT updated')
-      await loadData()
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to update primary RFT'
-      console.error('Primary document update failed:', error)
-      toast.error(message)
     }
   }
 
@@ -226,17 +199,12 @@ export default function ProjectDetailPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       })
-
       const result = await response.json()
-      if (!result.success) {
-        throw new Error(result.error ?? 'Unable to update project details')
-      }
-
+      if (!result.success) throw new Error(result.error ?? 'Unable to update project details')
       setProject(result.data)
       toast.success('Project details updated')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to update project details'
-      console.error('Project update failed:', error)
       toast.error(message)
       throw error instanceof Error ? error : new Error(message)
     }
@@ -264,16 +232,12 @@ export default function ProjectDetailPage() {
     }
   }, [project?.deadline])
 
-  const quickStats = useMemo(
-    () => [
-      { label: 'Client Name', value: project?.client_name || 'N/A' },
-      { label: 'Start Date', value: formatDate(project?.start_date ?? project?.created_at) },
-      { label: 'Deadline', value: formatDate(project?.deadline) },
-      { label: 'Time Left', value: timeLeft },
-      { label: 'Project Status', value: statusDisplay.label },
-    ],
-    [project?.client_name, project?.start_date, project?.created_at, project?.deadline, statusDisplay.label, timeLeft]
-  )
+  const kanbanData = useMemo(() => {
+    return KANBAN_COLUMNS.map(column => ({
+      ...column,
+      packages: workPackages.filter(pkg => column.statuses.includes(pkg.status)),
+    }))
+  }, [workPackages])
 
   if (loading) {
     return (
@@ -285,64 +249,60 @@ export default function ProjectDetailPage() {
   if (!project) return <div>Project not found</div>
 
   return (
-    <div className="space-y-10">
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="flex gap-6">
+      {/* LEFT SIDEBAR */}
+      <aside className="w-[300px] shrink-0">
+        <div className="sticky top-6 space-y-4">
           <Link
             href="/projects"
             className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition hover:text-foreground"
           >
             <ArrowLeft className="size-4" />
-            Back to all projects
+            Back to projects
           </Link>
-          <div className="flex flex-wrap items-center gap-2">
-            <EditProjectDetailsDialog
-              project={project}
-              onSubmit={handleProjectUpdate}
-              trigger={
-                <Button variant="outline" size="sm">
-                  Edit project details
-                </Button>
-              }
-            />
-            <DeleteProjectDialog projectId={projectId} projectName={project.name} />
-          </div>
-        </div>
 
-        <section className="rounded-3xl border bg-card shadow-sm">
-          <div className="flex flex-col gap-8 p-8 md:flex-row md:items-start md:justify-between">
-            <div className="space-y-6">
-              <div className="space-y-3">
-                <h1 className="text-3xl font-bold leading-tight">{project.name}</h1>
-                <p className="text-sm text-muted-foreground max-w-2xl">
-                  Configure your tender workspace by uploading core documents and sharing the context your team needs.
-                </p>
+          <Card className="rounded-3xl border-2 border-primary/20 shadow-md">
+            <CardContent className="p-6 space-y-6">
+              {/* Initials + Actions */}
+              <div className="flex items-center justify-between">
+                <div className="grid size-20 place-content-center rounded-full bg-primary/10 text-xl font-bold uppercase text-primary">
+                  {projectInitials}
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <MoreHorizontal className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <EditProjectDetailsDialog
+                      project={project}
+                      onSubmit={handleProjectUpdate}
+                      trigger={
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          Edit details
+                        </DropdownMenuItem>
+                      }
+                    />
+                    <DeleteProjectDialog
+                      projectId={projectId}
+                      projectName={project.name}
+                      trigger={
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                          Delete project
+                        </DropdownMenuItem>
+                      }
+                    />
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
-              <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2 lg:grid-cols-5">
-                {quickStats.map(stat => (
-                  <div key={stat.label} className="rounded-2xl border border-muted bg-muted/40 px-4 py-4 shadow-inner">
-                    <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      {stat.label}
-                    </dt>
-                    <dd className="mt-2 text-sm font-medium text-foreground">{stat.value}</dd>
-                  </div>
-                ))}
-              </dl>
-
+              {/* Project name + status */}
               <div className="space-y-2">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Summary</h2>
-                <p className="text-sm text-muted-foreground max-w-3xl">
-                  {project.instructions ||
-                    'Provide a summary of your project, outlining its purpose, goals, and key highlights. This helps teammates understand the opportunity at a glance.'}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex w-full max-w-[220px] flex-col items-end gap-4 self-stretch">
-              <div className="flex flex-col items-end gap-2">
-                <span
-                  className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                <h1 className="text-2xl font-bold leading-tight">{project.name}</h1>
+                <Badge
+                  variant="outline"
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
                     statusDisplay.tone === 'preparing'
                       ? 'border-primary/30 bg-primary/10 text-primary'
                       : statusDisplay.tone === 'analysis'
@@ -355,46 +315,75 @@ export default function ProjectDetailPage() {
                   }`}
                 >
                   {statusDisplay.label}
-                </span>
-                {project?.updated_at ? (
-                  <span className="text-xs text-muted-foreground">Updated {formatDate(project.updated_at)}</span>
-                ) : null}
+                </Badge>
               </div>
-              <div className="grid size-16 place-content-center rounded-full bg-primary/10 text-base font-semibold uppercase text-primary">
-                {projectInitials}
+
+              {/* Metadata */}
+              <div className="space-y-4 border-t border-muted pt-4">
+                <div className="space-y-1">
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Client</dt>
+                  <dd className="text-sm font-medium text-foreground">{project.client_name || 'N/A'}</dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Deadline</dt>
+                  <dd className="text-sm font-medium text-foreground">{formatDate(project.deadline)}</dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Time Left</dt>
+                  <dd className={`text-sm font-medium ${timeLeft.includes('past due') ? 'text-destructive' : 'text-foreground'}`}>
+                    {timeLeft}
+                  </dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Start Date</dt>
+                  <dd className="text-sm font-medium text-foreground">{formatDate(project.start_date ?? project.created_at)}</dd>
+                </div>
               </div>
-            </div>
-          </div>
 
-          <div className="space-y-6 border-t border-muted/60 px-8 py-6">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-foreground">Uploaded Documents</h2>
-                <p className="text-sm text-muted-foreground">
-                  Review the RFT files and supporting materials added to this project.
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => document.getElementById(uploadInputId)?.click()}
-                className="self-start"
-              >
-                <Plus className="mr-2 size-4" />
-                Add document
-              </Button>
-            </div>
+              {/* Compact Documents List */}
+              {documents.length > 0 && (
+                <div className="space-y-2 border-t border-muted pt-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Documents</h2>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-xs"
+                      onClick={() => document.getElementById(uploadInputId)?.click()}
+                    >
+                      <Plus className="size-3" />
+                    </Button>
+                  </div>
+                  <div className="space-y-1">
+                    {documents.slice(0, 5).map(doc => (
+                      <div key={doc.id} className="text-xs text-muted-foreground truncate">
+                        {doc.is_primary_rft && <span className="text-primary mr-1">★</span>}
+                        {doc.name}
+                      </div>
+                    ))}
+                    {documents.length > 5 && (
+                      <div className="text-xs text-muted-foreground italic">
+                        +{documents.length - 5} more
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
-            <ProjectDocumentsTable
-              documents={documents}
-              onDelete={handleDeleteDocument}
-              onSetPrimary={handleSetPrimaryDocument}
-            />
-          </div>
-        </section>
-      </div>
+              {/* Summary */}
+              {project.instructions && (
+                <div className="space-y-2 border-t border-muted pt-4">
+                  <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Summary</h2>
+                  <p className="text-xs text-muted-foreground line-clamp-4">{project.instructions}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </aside>
 
-      <div className="space-y-8">
+      {/* MAIN CONTENT - KANBAN */}
+      <main className="flex-1 min-w-0 space-y-6 relative">
         {workPackages.length === 0 && (
           <FileUpload onUpload={handleUpload} onPasteText={handlePasteText} inputId={uploadInputId} />
         )}
@@ -416,16 +405,97 @@ export default function ProjectDetailPage() {
                 description="Click 'Analyze RFT' to identify submission documents."
               />
             ) : (
-              <WorkPackageDashboard
-                projectId={projectId}
-                workPackages={workPackages}
-                onUpdate={loadData}
-                showBulkExport
-              />
+              <div className="space-y-4">
+                {/* Floating Actions Menu - Top Right */}
+                <div className="flex justify-end">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Zap className="mr-2 size-4" />
+                        Actions
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem>
+                        <Plus className="mr-2 size-4" />
+                        Add Custom Package
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        Export Completed
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        Generate All
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                {/* Kanban Columns */}
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                  {kanbanData.map(column => (
+                    <div key={column.id} className="flex flex-col">
+                      <div className={`rounded-t-2xl border-x border-t px-4 py-3 ${column.headerClass}`}>
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-sm font-semibold">{column.title}</h3>
+                          <span className={`inline-flex h-6 min-w-[24px] items-center justify-center rounded-full px-2 text-xs font-semibold text-white ${column.badgeClass}`}>
+                            {column.packages.length}
+                          </span>
+                        </div>
+                      </div>
+                      <div className={`flex-1 space-y-3 rounded-b-2xl border p-4 ${column.colorClass} min-h-[400px]`}>
+                        {column.packages.length === 0 ? (
+                          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                            No packages
+                          </div>
+                        ) : (
+                          column.packages.map(pkg => (
+                            <div
+                              key={pkg.id}
+                              className="rounded-xl border bg-white p-4 shadow-sm transition-all hover:shadow-md"
+                            >
+                              <h4 className="text-sm font-semibold text-foreground mb-2">
+                                {pkg.document_type}
+                              </h4>
+                              {pkg.document_description && (
+                                <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+                                  {pkg.document_description}
+                                </p>
+                              )}
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-muted-foreground">
+                                  {pkg.requirements.length} requirement{pkg.requirements.length !== 1 ? 's' : ''}
+                                </span>
+                                {pkg.assigned_to && (
+                                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                                    {pkg.assigned_to}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Advanced Actions - Open by Default */}
+                <details open className="rounded-2xl border bg-muted/10">
+                  <summary className="cursor-pointer px-4 py-3 text-sm font-semibold">Advanced Actions</summary>
+                  <div className="px-4 pb-4">
+                    <WorkPackageDashboard
+                      projectId={projectId}
+                      workPackages={workPackages}
+                      onUpdate={loadData}
+                      showBulkExport
+                    />
+                  </div>
+                </details>
+              </div>
             )}
           </>
         )}
-      </div>
+      </main>
     </div>
   )
 }
