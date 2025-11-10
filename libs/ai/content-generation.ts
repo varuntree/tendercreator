@@ -12,6 +12,7 @@ import {
   buildCustomPrompt,
   buildSelectionEditPrompt,
   selectionEditSystemInstruction,
+  stripSelectionTokens,
 } from './prompts/editor-actions'
 import { WorkPackage, Requirement } from '@/libs/repositories/work-packages'
 import { ProjectContext } from './context-assembly'
@@ -195,7 +196,7 @@ export async function runSelectionEdit({
     throw error
   }
 
-  const responseText = (response.data as string).trim()
+  const responseText = stripSelectionTokens(response.data as string)
   if (!responseText) {
     throw new Error('AI returned an empty response.')
   }
