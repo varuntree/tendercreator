@@ -159,21 +159,21 @@ export function StrategyGenerationScreen({
           </div>
 
           {workPackage.requirements.length ? (
-            <div className="rounded border">
+            <div className="rounded border overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b bg-muted/50">
-                    <th className="p-2 text-left font-medium">#</th>
-                    <th className="p-2 text-left font-medium">Priority</th>
+                    <th className="hidden p-2 text-left font-medium md:table-cell">#</th>
+                    <th className="p-2 text-left font-medium w-24">Priority</th>
                     <th className="p-2 text-left font-medium">Requirement</th>
-                    <th className="p-2 text-left font-medium">Source</th>
+                    <th className="hidden p-2 text-left font-medium md:table-cell">Source</th>
                   </tr>
                 </thead>
                 <tbody>
                   {workPackage.requirements.map((req: Requirement, index: number) => (
                     <tr key={req.id} className="border-b last:border-0 hover:bg-muted/30">
-                      <td className="p-2 font-medium">{index + 1}</td>
-                      <td className="p-2">
+                      <td className="hidden p-2 font-medium md:table-cell">{index + 1}</td>
+                      <td className="p-2 w-24">
                         <Badge
                           variant={req.priority === 'mandatory' ? 'destructive' : 'secondary'}
                           className="h-4 text-[10px]"
@@ -182,7 +182,7 @@ export function StrategyGenerationScreen({
                         </Badge>
                       </td>
                       <td className="p-2 leading-tight">{req.text}</td>
-                      <td className="p-2 text-muted-foreground">{req.source || '-'}</td>
+                      <td className="hidden p-2 text-muted-foreground md:table-cell">{req.source || '-'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -222,7 +222,7 @@ export function StrategyGenerationScreen({
               </div>
 
               {/* Strengths & Concerns */}
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                 <div className="rounded border p-2">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Strengths</p>
                   <div className="mt-2 space-y-1">
@@ -257,11 +257,11 @@ export function StrategyGenerationScreen({
               </div>
 
               {/* Criteria */}
-              <div className="rounded border">
+              <div className="rounded border overflow-x-auto">
                 <div className="border-b bg-muted/30 px-3 py-1.5">
                   <p className="text-[10px] font-semibold uppercase tracking-wide">Criteria</p>
                 </div>
-                <div className="divide-y">
+                <div className="divide-y min-w-[260px]">
                   {bidAnalysis.criteria.map((criterion) => (
                     <div key={criterion.id} className="flex items-center justify-between px-3 py-1.5">
                       <div className="flex-1">
@@ -307,7 +307,7 @@ export function StrategyGenerationScreen({
                       onChange={(event) => setEditText(event.target.value)}
                       className="h-7 flex-1 text-xs"
                     />
-                    <Button size="sm" onClick={() => handleSaveEdit(index)} className="h-7 w-7 p-0">
+                    <Button size="sm" onClick={() => handleSaveEdit(index)} className="h-7 w-7 p-0 max-md:h-12 max-md:w-12 max-md:p-2">
                       <Check className="size-3" />
                     </Button>
                   </>
@@ -318,7 +318,7 @@ export function StrategyGenerationScreen({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-6 w-6 p-0"
+                      className="h-6 w-6 p-0 max-md:h-12 max-md:w-12 max-md:p-2"
                       onClick={() => handleEdit(index)}
                     >
                       <Edit className="size-3" />
@@ -326,7 +326,7 @@ export function StrategyGenerationScreen({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                      className="h-6 w-6 p-0 text-destructive hover:text-destructive max-md:h-12 max-md:w-12 max-md:p-2"
                       onClick={() => handleDelete(index)}
                     >
                       <Trash2 className="size-3" />
@@ -344,20 +344,23 @@ export function StrategyGenerationScreen({
       </div>
 
       {/* Floating Action Panel - V10 Style */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <div className="flex items-center gap-3 rounded-full border border-border/50 bg-background/95 px-5 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-xl transition-all duration-300 hover:bottom-7 hover:right-7 hover:shadow-[0_12px_48px_rgba(0,0,0,0.18)]">
-          {/* Status Badge */}
-          <Badge className={cn('text-xs font-semibold', statusMeta.tone)}>
-            {statusMeta.label}
-          </Badge>
+      <div className="fixed bottom-0 left-0 right-0 z-50 md:bottom-6 md:right-6 md:left-auto md:w-auto w-full">
+        <div className="flex w-full flex-col gap-3 rounded-2xl border border-border/50 bg-background/95 px-4 py-4 shadow-[0_16px_48px_rgba(15,23,42,0.15)] backdrop-blur-xl transition-all duration-300 md:flex-row md:items-center md:px-5 md:py-3 md:w-auto">
+          <div className="flex items-center justify-between gap-3 md:justify-start">
+            <Badge className={cn('text-xs font-semibold', statusMeta.tone)}>
+              {statusMeta.label}
+            </Badge>
+            <div className="hidden h-6 w-px bg-border/40 md:block" />
+          </div>
 
-          {/* Divider */}
-          <div className="h-6 w-px bg-border/40" />
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-col items-stretch gap-2 md:flex-row md:items-center md:w-auto">
             {isContentGenerated && (
-              <Button variant="outline" onClick={onContinue} size="sm" className="h-8 text-xs">
+              <Button
+                variant="outline"
+                onClick={onContinue}
+                size="sm"
+                className="w-full justify-center text-xs md:w-auto"
+              >
                 Continue in Editor
                 <ChevronRight className="ml-1.5 size-3.5" />
               </Button>
@@ -366,7 +369,7 @@ export function StrategyGenerationScreen({
               onClick={handleGenerateContent}
               disabled={!hasStrategyData}
               size="sm"
-              className="h-8 text-xs font-semibold shadow-sm"
+              className="w-full justify-center text-xs font-semibold shadow-sm md:w-auto"
             >
               <Sparkles className="mr-1.5 size-3.5" />
               Generate Content

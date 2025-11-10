@@ -289,9 +289,49 @@ export default function ProjectDetailPage() {
   if (!project) return <div>Project not found</div>
 
   return (
-    <div className="flex gap-6">
+    <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+      <div className="lg:hidden space-y-4">
+        <Link
+          href="/projects"
+          className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" />
+          Back to projects
+        </Link>
+        <Card className="rounded-3xl border-2 border-primary/20 shadow-md">
+          <CardContent className="space-y-4 p-5">
+            <div className="flex items-center justify-between">
+              <div className="grid h-14 w-14 place-content-center rounded-full bg-primary/10 text-2xl font-bold uppercase text-primary">
+                {projectInitials}
+              </div>
+              <Badge className="rounded-full px-3 py-1 text-xs font-semibold" variant="outline">
+                {statusDisplay.label}
+              </Badge>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-foreground">{project.name}</p>
+              <p className="text-xs text-muted-foreground">{project.client_name || 'N/A'}</p>
+            </div>
+            <div className="grid gap-2 text-xs uppercase tracking-wide text-muted-foreground sm:grid-cols-3">
+              <div>
+                <dt className="text-[0.6rem] font-semibold tracking-wide text-muted-foreground">Deadline</dt>
+                <dd className="text-sm font-medium text-foreground">{formatDate(project.deadline)}</dd>
+              </div>
+              <div>
+                <dt className="text-[0.6rem] font-semibold tracking-wide text-muted-foreground">Time left</dt>
+                <dd className={`text-sm font-medium ${timeLeft.includes('past due') ? 'text-destructive' : 'text-foreground'}`}>{timeLeft}</dd>
+              </div>
+              <div>
+                <dt className="text-[0.6rem] font-semibold tracking-wide text-muted-foreground">Start date</dt>
+                <dd className="text-sm font-medium text-foreground">{formatDate(project.start_date ?? project.created_at)}</dd>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* LEFT SIDEBAR */}
-      <aside className="w-[300px] shrink-0">
+      <aside className="hidden w-[300px] shrink-0 lg:block">
         <div className="sticky top-6 space-y-4">
           <Link
             href="/projects"
@@ -300,7 +340,6 @@ export default function ProjectDetailPage() {
             <ArrowLeft className="size-4" />
             Back to projects
           </Link>
-
           <Card className="rounded-3xl border-2 border-primary/20 shadow-md">
             <CardContent className="p-6 space-y-6">
               {/* Initials + Actions */}
@@ -310,7 +349,7 @@ export default function ProjectDetailPage() {
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 max-md:h-12 max-md:w-12 max-md:p-2">
                       <MoreHorizontal className="size-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -446,49 +485,50 @@ export default function ProjectDetailPage() {
               />
             ) : (
               <div className="space-y-4">
-                {/* Floating Actions Menu - Top Right */}
-                <div className="flex justify-end">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <Zap className="mr-2 size-4" />
-                        Actions
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem>
-                        <Plus className="mr-2 size-4" />
-                        Add Custom Package
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        Export Completed
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        Generate All
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                {/* Kanban hidden on mobile - table provides mobile-friendly view */}
+                <div className="hidden space-y-4 md:block">
+                  <div className="flex justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <Zap className="mr-2 size-4" />
+                          Actions
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem>
+                          <Plus className="mr-2 size-4" />
+                          Add Custom Package
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          Export Completed
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          Generate All
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
 
-                {/* Kanban Columns */}
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                  {kanbanData.map(column => (
-                    <div key={column.id} className="flex flex-col">
-                      <div className={`rounded-t-2xl border-x border-t px-4 py-3 ${column.headerClass}`}>
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-sm font-semibold">{column.title}</h3>
-                          <span className={`inline-flex h-6 min-w-[24px] items-center justify-center rounded-full px-2 text-xs font-semibold text-white ${column.badgeClass}`}>
-                            {column.packages.length}
-                          </span>
-                        </div>
-                      </div>
-                      <div className={`flex-1 space-y-3 rounded-b-2xl border p-4 ${column.colorClass} min-h-[400px]`}>
-                        {column.packages.length === 0 ? (
-                          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                            No packages
+                  {/* Kanban Columns */}
+                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                    {kanbanData.map(column => (
+                      <div key={column.id} className="flex flex-col">
+                        <div className={`rounded-t-2xl border-x border-t px-4 py-3 ${column.headerClass}`}>
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-semibold">{column.title}</h3>
+                            <span className={`inline-flex h-6 min-w-[24px] items-center justify-center rounded-full px-2 text-xs font-semibold text-white ${column.badgeClass}`}>
+                              {column.packages.length}
+                            </span>
                           </div>
-                        ) : (
-                          column.packages.map(pkg => (
+                        </div>
+                        <div className={`flex-1 space-y-3 rounded-b-2xl border p-4 ${column.colorClass} min-h-[400px]`}>
+                          {column.packages.length === 0 ? (
+                            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                              No packages
+                            </div>
+                          ) : (
+                            column.packages.map(pkg => (
                               <div
                                 key={pkg.id}
                                 className="rounded-xl border bg-white p-4 shadow-sm transition-all hover:shadow-md cursor-pointer"
@@ -503,30 +543,31 @@ export default function ProjectDetailPage() {
                                   }
                                 }}
                               >
-                              <h4 className="text-sm font-semibold text-foreground mb-2">
-                                {pkg.document_type}
-                              </h4>
-                              {pkg.document_description && (
-                                <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
-                                  {pkg.document_description}
-                                </p>
-                              )}
-                              <div className="flex items-center justify-between text-xs">
-                                <span className="text-muted-foreground">
-                                  {pkg.requirements.length} requirement{pkg.requirements.length !== 1 ? 's' : ''}
-                                </span>
-                                {pkg.assigned_to && (
-                                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                                    {pkg.assigned_to}
-                                  </span>
+                                <h4 className="text-sm font-semibold text-foreground mb-2">
+                                  {pkg.document_type}
+                                </h4>
+                                {pkg.document_description && (
+                                  <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+                                    {pkg.document_description}
+                                  </p>
                                 )}
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-muted-foreground">
+                                    {pkg.requirements.length} requirement{pkg.requirements.length !== 1 ? 's' : ''}
+                                  </span>
+                                  {pkg.assigned_to && (
+                                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                                      {pkg.assigned_to}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          ))
-                        )}
+                            ))
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
 
                 {/* Advanced Actions - Open by Default */}

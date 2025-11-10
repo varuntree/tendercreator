@@ -95,7 +95,7 @@ export default function Navbar() {
   const userInitial = user?.email?.charAt(0).toUpperCase() ?? 'U'
 
   return (
-    <header className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+    <header className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
       <div className="space-y-4">
         <Breadcrumbs />
         <div className="space-y-2">
@@ -111,10 +111,10 @@ export default function Navbar() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3 md:flex-row">
         <Button
           variant="outline"
-          className="order-2 flex items-center gap-2 rounded-full border-slate-200 text-slate-700 hover:bg-slate-50 lg:order-1"
+          className="order-2 flex items-center gap-2 rounded-full border-slate-200 text-slate-700 hover:bg-slate-50 md:order-1"
         >
           <Bell className="h-4 w-4" />
           Updates
@@ -124,7 +124,7 @@ export default function Navbar() {
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="order-1 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-white transition hover:bg-emerald-500 lg:order-2"
+              className="order-1 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-white transition hover:bg-emerald-500 md:order-2"
               aria-label="Account menu"
             >
               <Avatar className="h-12 w-12">

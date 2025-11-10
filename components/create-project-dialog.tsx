@@ -98,9 +98,9 @@ export function CreateProjectDialog({ trigger }: CreateProjectDialogProps) {
         <DialogTrigger asChild>
           {trigger ?? <Button>Create Project</Button>}
         </DialogTrigger>
-        <DialogContent className="max-h-[90vh] w-full overflow-hidden border-none bg-transparent p-0 sm:max-w-[720px]">
-          <div className="grid gap-0 overflow-hidden rounded-3xl border bg-card shadow-xl sm:grid-cols-[260px_1fr]">
-            <aside className="flex flex-col gap-6 bg-muted/60 p-8 text-left">
+      <DialogContent className="max-h-[90vh] overflow-y-auto w-full border-none bg-transparent p-0 sm:max-w-[720px]">
+        <div className="grid gap-0 overflow-hidden rounded-3xl border bg-card shadow-xl grid-cols-1 md:grid-cols-[260px_1fr]">
+            <aside className="hidden flex-col gap-6 bg-muted/60 p-8 text-left md:flex">
               <div className="inline-flex size-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
                 <PlaneTakeoff className="size-6" />
               </div>

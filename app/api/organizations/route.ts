@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 
+import { clearContextCache } from '@/libs/ai/context-assembly'
 import { apiError, apiSuccess, AuthContext, withAuth } from '@/libs/api-utils'
 import {
   createOrganization,
@@ -47,6 +48,8 @@ async function handlePUT(request: NextRequest, { user, supabase }: AuthContext) 
       name,
       settings,
     })
+
+    clearContextCache()
 
     return apiSuccess(updated)
   } catch (error) {

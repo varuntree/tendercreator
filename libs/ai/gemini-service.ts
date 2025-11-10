@@ -21,7 +21,7 @@ export interface GeminiResponse<T = any> {
 }
 
 const DEFAULT_MAX_RETRIES = 4;
-const DEFAULT_MODEL = "gemini-2.0-flash-exp";
+const DEFAULT_MODEL = "gemini-2.5-flash";
 const TOKEN_LIMIT = 64000; // 64K token limit for Gemini 2.0 Flash
 
 /**

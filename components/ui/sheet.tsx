@@ -34,8 +34,8 @@ type SheetContentProps = React.ComponentPropsWithoutRef<typeof SheetPrimitive.Co
 const anchorStyles: Record<SheetSide, string> = {
   top: "left-0 right-0 top-0 h-[50vh]",
   bottom: "left-0 right-0 bottom-0 h-[80vh]",
-  left: "left-0 top-0 bottom-0 w-[420px]",
-  right: "right-0 top-0 bottom-0 w-[420px]",
+  left: "left-0 top-0 bottom-0 w-full md:w-[420px]",
+  right: "right-0 top-0 bottom-0 w-full md:w-[420px]",
 }
 
 const SheetContent = React.forwardRef<
@@ -55,6 +55,7 @@ const SheetContent = React.forwardRef<
       )}
       {...props}
     >
+      <SheetTitle className="sr-only">Sidebar navigation</SheetTitle>
       {children}
     </SheetPrimitive.Content>
   </SheetPrimitive.Portal>
