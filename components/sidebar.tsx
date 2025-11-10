@@ -1,16 +1,7 @@
 'use client'
 
 import type { LucideIcon } from 'lucide-react'
-import {
-  BookOpen,
-  Building2,
-  ChevronLeft,
-  CreditCard,
-  FileQuestion,
-  FolderKanban,
-  Plus,
-  Users,
-} from 'lucide-react'
+import { BookOpen, Building2, ChevronLeft, CreditCard, FileQuestion, FolderKanban, Menu, Plus, Users, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -18,6 +9,8 @@ import { useEffect, useState } from 'react'
 import { CreateProjectDialog } from '@/components/create-project-dialog'
 import Logo from '@/components/logo'
 import { Button } from '@/components/ui/button'
+import { Sheet, SheetClose, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { useMediaQuery } from '@/hooks/use-media-query'
 import { cn } from '@/lib/utils'
 
 type NavItem = {
@@ -64,11 +57,16 @@ const navItems: NavItem[] = [
 export default function Sidebar() {
   const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [hasMounted, setHasMounted] = useState(false)
+  const { isAtMost } = useMediaQuery()
 
   useEffect(() => {
     const collapsed = localStorage.getItem('sidebarCollapsed') === 'true'
     setIsCollapsed(collapsed)
+    setHasMounted(true)
   }, [])
+
+  const isMobile = hasMounted && isAtMost('sm')
 
   const toggleCollapse = () => {
     const newState = !isCollapsed
@@ -85,7 +83,7 @@ export default function Sidebar() {
     return pathname === item.href
   }
 
-  return (
+  const sidebarContent = (
     <aside
       className={cn(
         'flex h-full flex-col border-r border-[var(--dashboard-border)] bg-white transition-all duration-300 rounded-tr-[40px] rounded-br-[40px]',
@@ -142,17 +140,18 @@ export default function Sidebar() {
                 active
                   ? 'bg-gray-100 text-gray-900 shadow-inner'
                   : 'text-gray-400 hover:text-gray-900',
-                isCollapsed && 'justify-center px-0'
+                isCollapsed && 'justify-center px-0',
+                'max-md:min-h-[44px]'
               )}
             >
-              <span
-                className={cn(
-                  'flex h-10 w-10 items-center justify-center rounded-2xl border border-transparent text-lg transition-all',
-                  active
-                    ? 'border-gray-300 bg-white text-[var(--dashboard-primary)]'
-                    : 'text-gray-400'
-                )}
-              >
+                <span
+                  className={cn(
+                    'flex h-10 w-10 items-center justify-center rounded-2xl border border-transparent text-lg transition-all max-md:h-12 max-md:w-12',
+                    active
+                      ? 'border-gray-300 bg-white text-[var(--dashboard-primary)]'
+                      : 'text-gray-400'
+                  )}
+                >
                 <Icon className="h-5 w-5" />
               </span>
               {!isCollapsed && (
@@ -180,4 +179,39 @@ export default function Sidebar() {
       </div>
     </aside>
   )
+
+  if (isMobile) {
+    return (
+      <>
+        <Sheet>
+          <SheetTrigger asChild>
+            <button
+              type="button"
+              className="fixed left-4 top-4 z-50 flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-lg transition hover:border-slate-400 md:hidden"
+              aria-label="Open navigation"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0">
+            <div className="absolute right-4 top-4 z-50">
+              <SheetClose asChild>
+                <button
+                  type="button"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-lg transition hover:border-slate-400"
+                  aria-label="Close navigation"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </SheetClose>
+            </div>
+            {sidebarContent}
+          </SheetContent>
+        </Sheet>
+        {/* Ensure desktop layout still receives sidebar margin via Layout */}
+      </>
+    )
+  }
+
+  return sidebarContent
 }

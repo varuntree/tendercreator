@@ -86,7 +86,7 @@ export default function CompanyProfileForm({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
+      <DialogContent className="max-h-[90vh] overflow-y-auto md:max-w-[600px] max-md:w-screen max-md:h-screen max-md:max-w-none">
         <DialogHeader>
           <DialogTitle>
             {existingProfile ? 'Edit' : 'Create'} Company Profile
@@ -221,11 +221,11 @@ export default function CompanyProfileForm({
             </div>
           )}
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
+          <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <Button type="button" variant="outline" onClick={onClose} disabled={loading} className="w-full sm:w-auto">
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="w-full sm:w-auto">
               {loading ? (
                 <>
                   <Spinner size="sm" className="mr-2 text-primary-foreground" />

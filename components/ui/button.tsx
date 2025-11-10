@@ -24,10 +24,10 @@ const buttonVariants = cva(
           'bg-chart-4 border-[0.8px] font-normal border-foreground/10 before:absolute relative before:-inset-0.25 before:content-[""] before:chart-4 before:-z-1 after:absolute after:inset-0 after:content-[""] after:bg-primary/30 hover:after:translate-y-[95%] after:transition-all after:translate-y-[100%] after:blur-md overflow-hidden',
       },
       size: {
-        default: 'h-9 px-4 py-2 has-[>svg]:px-3',
-        sm: 'h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5',
+        default: 'h-9 px-4 py-2 has-[>svg]:px-3 max-md:min-h-[44px]',
+        sm: 'h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5 max-md:min-h-[44px]',
         lg: 'h-10 rounded-md px-6 has-[_svg]:px-3 text-sm md:text-base',
-        icon: 'size-8',
+        icon: 'size-8 max-md:h-12 max-md:w-12',
       },
     },
     defaultVariants: {

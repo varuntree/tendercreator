@@ -22,24 +22,24 @@ export default async function DashboardLayout({
   // }
 
   return (
-    <div className="flex h-screen">
-      <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <main className="flex-1 overflow-hidden px-3 py-3 sm:px-6 sm:py-6">
-          <section
-            className="relative flex h-full w-full flex-col overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-[0_40px_120px_rgba(15,23,42,0.14)]"
-            style={{ '--dashboard-rail': '5rem', '--dashboard-rail-gap': '1.5rem' } as CSSProperties}
-          >
-            <div className="relative border-b border-slate-100 px-6 py-6 sm:px-10 sm:py-8 [padding-left:calc(var(--dashboard-rail)+var(--dashboard-rail-gap))]">
-              <Navbar />
-            </div>
+  <div className="flex h-screen">
+    <Sidebar />
+    <div className="flex flex-1 flex-col overflow-hidden">
+      <main className="flex-1 overflow-hidden px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+        <section
+          className="relative flex h-full w-full flex-col overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-[0_40px_120px_rgba(15,23,42,0.14)]"
+          style={{ '--dashboard-rail': '5rem', '--dashboard-rail-gap': '1.5rem' } as CSSProperties}
+        >
+          <div className="relative border-b border-slate-100 px-4 py-4 sm:px-6 sm:py-6 md:px-10 md:py-8 md:[padding-left:calc(var(--dashboard-rail)+var(--dashboard-rail-gap))]">
+            <Navbar />
+          </div>
 
-            <div className="relative flex-1 overflow-y-auto px-6 py-6 sm:px-10 sm:py-10 [padding-left:calc(var(--dashboard-rail)+var(--dashboard-rail-gap))]">
-              {children}
-            </div>
-          </section>
-        </main>
-      </div>
+          <div className="relative flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-8 md:px-10 md:py-10 md:[padding-left:calc(var(--dashboard-rail)+var(--dashboard-rail-gap))]">
+            {children}
+          </div>
+        </section>
+      </main>
     </div>
+  </div>
   )
 }
